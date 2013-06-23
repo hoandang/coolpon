@@ -22,7 +22,8 @@ var Machines = Backbone.Collection.extend({
 });
 var Machine = Backbone.Model.extend({
     url: '/machines'
-})
+});
+
 var MachinesView = Backbone.View.extend({
     el: '.page',
     render: function() {

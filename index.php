@@ -3,8 +3,7 @@ require 'vendor/autoload.php';
 require 'redbean/rb.php';
 
 // Connect to mysql via redbean
-R::setup('mysql:host=localhost;
-    dbname=coolpon', 'root','');
+R::setup('mysql:host=localhost; dbname=coolpon', 'root','');
 R::freeze(true);
 
 // Initialise Slim
@@ -12,35 +11,30 @@ $app = new \Slim\Slim();
 
 // GET home page from template
 $app->get('/', function() use ($app) {
-    $app->render('app.html');
+    $app->render('public/app.html');
 });
 
 // GET admin page from template
 $app->get('/admin', function() use ($app) {
-    $app->render('admin.html');
+    $app->render('admin/admin.html');
 });
 
-// GET requests for /machines
-$app->get('/machines', function() use ($app) {
-    $machines = R::find('machines');
-    $app->response()->header('Content-Type', 'application/json');
-    echo json_encode(R::exportAll($machines));
-});
-
-// GET requests for /machines?post_code=?
+// GET requests for /machines and /machines?post_code=?
 $app->get('/machines', function() use ($app) {
     try 
     {
         $post_code = $app->request()->get('post_code');
-        $machines = R::find('machines', 'post_code=?', array($post_code));
-        if ($machines)
+        if ($post_code)
         {
+            $machines = R::find('machines', 'post_code=?', array($post_code));
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode(R::exportAll($machines));
         }
         else
         {
-            throw new ResourceNotFoundException();
+            $machines = R::find('machines');
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($machines));
         }
     } 
     catch (Exception $e)
@@ -55,15 +49,8 @@ $app->get('/machines/:id/coupons', function($id) use ($app) {
     try 
     {
         $coupons = R::find('coupons', 'machine_id=?', array($id));
-        if ($coupons)
-        {
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode(R::exportAll($coupons));
-        }
-        else
-        {
-            throw new ResourceNotFoundException();
-        }
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($coupons));
     } 
     catch (Exception $e)
     {

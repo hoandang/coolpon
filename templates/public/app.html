@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CoolPon</title>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="templates/public/style.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <h1>CoolPon</h1>
+        <form id="form-search" class="form-search">
+            <input type="text" id="post_code" name="post_code" class="input-xxlarge" placeholder="Enter Post Code" />
+            <input type="submit" value="Search" class="btn btn-inverse" />
+        </form>
+        <div class="page">
+            <ul id="searched-machines"></ul>
+            <div id="map-canvas"></div>
+        </div>
+    </div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyCDYr8ddbtZccZkXWP-GTNrTy8uWCprUZk&sensor=true"></script>
+    <script src="templates/public/app.js"></script>
+</body>
+</html>
