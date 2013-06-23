@@ -12,7 +12,12 @@ $app = new \Slim\Slim();
 
 // GET home page from template
 $app->get('/', function() use ($app) {
-    $app->render('index.html');
+    $app->render('app.html');
+});
+
+// GET admin page from template
+$app->get('/admin', function() use ($app) {
+    $app->render('admin.html');
 });
 
 // GET requests for /machines
