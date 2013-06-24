@@ -44,6 +44,21 @@ $app->get('/machines', function() use ($app) {
     }
 });
 
+// GET requests for /machines/:id
+$app->get('/machines/:id', function($id) use ($app) {
+    try 
+    {
+        $machine = R::find('machines', 'id=?', array($id));
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($machine));
+    } 
+    catch (Exception $e)
+    {
+        $app->response()->status(404);
+        $app->response()->header('X-Status-Reason', $e->getMessage());
+    }
+});
+
 // GET requests for /machines/:id/coupons
 $app->get('/machines/:id/coupons', function($id) use ($app) {
     try 

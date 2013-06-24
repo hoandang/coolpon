@@ -63,7 +63,7 @@ var EditMachineView = Backbone.View.extend({
 var Router = Backbone.Router.extend({
     routes: {
         '': 'home',
-        'new': 'editMachine'
+        'new-machine': 'editMachine'
     }
 });
 

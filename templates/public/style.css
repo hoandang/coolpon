@@ -1,4 +1,23 @@
-#map-canvas { 
-    height: 300px;
-    width: 500px;
+ul {
+    list-style-type: none;
+}
+.error {
+    color: #ee1111 !important;
+}
+#map-canvas {
+    margin-left: 150px;
+    height: 450px;
+    width: 750px;
+}
+
+#coupons-list li {
+    margin: 10px;
+    width: 255px;
+    height: 200px;
+    float: left;
+}
+
+#searched-machines-menu li {
+    float: left; 
+    margin-right: 15px;
 }
