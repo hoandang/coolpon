@@ -1,26 +1,3 @@
-// Filter url caller, instead of giving full url, 
-// we need only the url's suffix. Eg: /machines
-$.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
-    options.url = 'http://localhost:8888' + options.url;
-});
-
-// Serialise input form into JSON Object
-$.fn.serializeObject = function() {
-  var o = {};
-  var a = this.serializeArray();
-  $.each(a, function() {
-      if (o[this.name] !== undefined) {
-          if (!o[this.name].push) {
-              o[this.name] = [o[this.name]];
-          }
-          o[this.name].push(this.value || '');
-      } else {
-          o[this.name] = this.value || '';
-      }
-  });
-  return o;
-};
-
 //---------- COLLECTIONS --------------------------
 var SearchedMachines = Backbone.Collection.extend({
     initialize: function(models, options) {
@@ -58,7 +35,7 @@ var HomeView = Backbone.View.extend({
     search_machines: function(ev) {
 
         //------ DIRTY CODE, WILL REFACT IT ----------------------------------------------------------
-        var post_code              = $("#post_code").val();
+        var post_code              = ($("#post_code").val() == 0) ? 1 : $("#post_code").val();
         var searched_machines      = new SearchedMachines([], { post_code: post_code });
         var searched_machines_list = $("#searched-machines");
         var error                  = $('.error');
@@ -76,8 +53,9 @@ var HomeView = Backbone.View.extend({
                 {
                     $.each(searched_machines_models, function() {
                         var machine   = this;
-                        locations.push(this.attributes.address + ' Sydney, NSW');
-                        searched_machines_list.append('<li><a href="#/machines/' + this.attributes.id + '?post_code=' + post_code + '">' 
+                        locations.push(this.attributes.address + ' Sydney, NSW ' + post_code);
+                        searched_machines_list.append('<li><a href="#/machines/' + 
+                                                        this.attributes.id + '?post_code=' + post_code + '">' 
                                                       + this.attributes.name + '</a></li>');
                     });
                     code_address(locations);
@@ -109,7 +87,6 @@ var MachineView = Backbone.View.extend({
                 searched_machines: searched_machines.models,
                 current_machine: current_machine.attributes[0]
             });
-            console.log(template);
             that.$el.html(template);
         });
     }

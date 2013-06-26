@@ -9,9 +9,13 @@ R::freeze(true);
 // Initialise Slim
 $app = new \Slim\Slim();
 
+$app->config(array(
+    'templates.path' => 'public'
+));
+
 // GET home page from template
 $app->get('/', function() use ($app) {
-    $app->render('public/app.html');
+    $app->render('app/app.html');
 });
 
 // GET admin page from template
@@ -104,21 +108,30 @@ $app->post('/machines', function() use ($app) {
 $app->post('/machines/:id/coupons', function($id) use ($app) {
     try
     {
-        $request = $app->request();
-        $body    = $request->getBody();
-        $input   = json_decode($body);
+        $storage = new \Upload\Storage\FileSystem('assets');
+        $file = new \Upload\File('image', $storage);
+ 
+        try 
+        {
+            $file->upload();
+        } 
+        catch (\Exception $e) 
+        {
+            $errors = $file->getErrors();
+            echo $errors;
+        }
 
+        $file_path = 'assets/'.$file->getNameWithExtension();
         $coupon = R::dispense('coupons');
 
-        $coupon->machine_id  = (int)$input->machine_id;
-        $coupon->name        = (string)$input->name;
-        $coupon->description = (string)$input->description;
-        $coupon->image       = (string)$input->image;
+        $coupon->machine_id  = $_POST['machine_id'];
+        $coupon->name        = $_POST['name'];
+        $coupon->description = $_POST['description'];
+        $coupon->image       = $file_path;
 
         $id = R::store($coupon);
-
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode(R::exportAll($coupon));
+        header('Location: /admin'); /* Redirect browser */
+        exit();
     }
     catch (Exception $e)
     {
