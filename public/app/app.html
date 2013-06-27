@@ -40,16 +40,9 @@
         <hr />
         <h3><%= current_machine.name %></h3>
         <ul id="coupons-list">
-            <li><img src="assets/1.jpg" /></li>
-            <li><img src="assets/2.jpg" /></li>
-            <li><img src="assets/3.gif" /></li>
-            <li><img src="assets/4.jpg" /></li>
-            <li><img src="assets/6.jpg" /></li>
-            <li><img src="assets/7.jpg" /></li>
-            <li><img src="assets/8.jpg" /></li>
-            <li><img src="assets/9.jpg" /></li>
-            <li><img src="assets/10.jpg" /></li>
-            <li><img src="assets/11.jpg" /></li>
+            <% _.each(coupons, function(coupon) { %>
+            <li><img src="<%= coupon.get('image') %>" /></li>
+            <% }); %>
         </ul>
     </script>
 

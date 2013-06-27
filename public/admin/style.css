@@ -1,3 +1,10 @@
+ul {
+    list-style-type: none;
+}
+.table td
+{
+  vertical-align: middle;
+}
 label.file-upload input[type=file] {
     position: absolute;
     top: 0;
@@ -8,3 +15,39 @@ label.file-upload input[type=file] {
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
     opacity: 0;
 }
+
+.machine-list li {
+    float: left;
+}
+.machine-list li a {
+    margin-right: 20px;
+}
+
+#navigator {
+    margin: 0 0 30px 0;
+    background-color: #0866C6;
+}
+#navigator li {
+    text-align: center;
+    width: 100px;
+    float: left;
+    padding: 15px 10px;
+    background: rgba(255,255,255,0.1);
+    border-left: 1px solid rgba(255,255,255,0.15);
+}
+
+#navigator li a {
+    color: #fff;
+}
+
+
+
+
+
+
+
+
+
+
+
+

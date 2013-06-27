@@ -78,6 +78,47 @@ $app->get('/machines/:id/coupons', function($id) use ($app) {
     }
 });
 
+// GET requests for /businesses
+$app->get('/businesses', function() use ($app) {
+    try 
+    {
+        $businesses = R::find('businesses');
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($businesses));
+    } 
+    catch (Exception $e)
+    {
+        $app->response()->status(404);
+        $app->response()->header('X-Status-Reason', $e->getMessage());
+    }
+});
+
+// POST requests to /businesses
+$app->post('/businesses', function() use ($app) {
+    try
+    {
+        $request = $app->request();
+        $body    = $request->getBody();
+        $input   = json_decode($body);
+
+        $businesses = R::dispense('businesses');
+
+        $businesses->name        = (string)$input->name;
+        $businesses->address     = (string)$input->address;
+        $businesses->description = (string)$input->description;
+
+        $id = R::store($businesses);
+
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($businesses));
+    }
+    catch (Exception $e)
+    {
+        $app->response()->status(404);
+        $app->response()->header('X-Status-Reason', $e->getMessage());
+    }
+});
+
 // POST requests to /machines
 $app->post('/machines', function() use ($app) {
     try
@@ -115,22 +156,24 @@ $app->post('/machines/:id/coupons', function($id) use ($app) {
         {
             $file->upload();
         } 
-        catch (\Exception $e) 
+        catch (Exception $e) 
         {
-            $errors = $file->getErrors();
-            echo $errors;
+            $app->response()->status(400);
+            $app->response()->header('X-Status-Reason', $file->getErrors());
         }
 
         $file_path = 'assets/'.$file->getNameWithExtension();
         $coupon = R::dispense('coupons');
 
         $coupon->machine_id  = $_POST['machine_id'];
+        $coupon->business_id = 1;
         $coupon->name        = $_POST['name'];
         $coupon->description = $_POST['description'];
         $coupon->image       = $file_path;
 
+
         $id = R::store($coupon);
-        header('Location: /admin'); /* Redirect browser */
+        header('Location: /admin#/machines/'.$_POST['machine_id']); 
         exit();
     }
     catch (Exception $e)
