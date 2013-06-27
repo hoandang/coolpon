@@ -6,22 +6,26 @@
     <link href="public/app/style.css" rel="stylesheet" />
 </head>
 <body>
-    <header class="navbar">
-        <div class="navbar-inner">
-            <a href="#" class="brand">CoolPon</a>
-        </div>
-    </header>
-
     <div class="container">
+        <div id="logo">
+            <h1><a href="#">Coolpon</a></h1>
+        </div>
+        <ul class="span12" id="navigator">
+            <li><a href="#">Search</a></li>
+            <li><a href="#">Subscribe</a></li>
+        </ul>
         <div class="page"></div>
     </div>
 
     <script type="text/template" id="home">
         <form id="form-search" class="form-search">
             <input type="text" id="post_code" name="post_code" class="input-xxlarge" placeholder="Enter Post Code" />
-            <input type="submit" value="Search" class="btn btn-inverse" />
+            <button class="btn" type="submit">
+                <i class="icon-search"></i>
+                <span>Search</span>
+            </button>
         </form>
-        <h3 class="error"></h3>
+        <h3 class="error center"></h3>
         <ul id="searched-machines" class="pull-left"></ul>
         <div id="map-canvas"></div>
     </script>
@@ -39,9 +43,14 @@
         <div class="clearfix"></div>
         <hr />
         <h3><%= current_machine.name %></h3>
-        <ul id="coupons-list">
+        <ul id="coupons-list" class="thumbnails">
             <% _.each(coupons, function(coupon) { %>
-            <li><img src="<%= coupon.get('image') %>" /></li>
+            <li class="span3">
+                <a class="thumbnail" href="#/machines/<%= current_machine.id %>/coupons/<%=coupon.id%>">
+                    <img data-src="holder.js/260x180" src="<%= coupon.get('image') %>" />
+                </a>
+                <h5><%= coupon.get('name') %> - <span class="alert-error">Expired: <%=coupon.get('expired_date')%></span></h5>
+            </li>
             <% }); %>
         </ul>
     </script>

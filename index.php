@@ -101,33 +101,36 @@ $app->post('/coupons', function() use ($app) {
     {
         $storage = new \Upload\Storage\FileSystem('assets');
         $file = new \Upload\File('image', $storage);
- 
+
+        $new_filename = uniqid();
+        $file->setName($new_filename);
+
         try 
         {
             $file->upload();
+            $file_path = 'assets/'.$file->getNameWithExtension();
+
+            $coupon = R::dispense('coupons');
+
+            $coupon->machine_id   = $_POST['machine_id'];
+            $coupon->expired_date = $_POST['expired_date'];
+            $coupon->business_id  = $_POST['business_id'];
+            $coupon->name         = $_POST['name'];
+            $coupon->description  = $_POST['description'];
+            $coupon->image        = $file_path;
+
+            $id = R::store($coupon);
+            if ($request == 'coupon')
+                header('Location: /admin#/coupons');
+            else
+                header('Location: /admin#/machines/'.$_POST['machine_id']);
+            exit();
         } 
         catch (Exception $e) 
         {
             $app->response()->status(400);
             $app->response()->header('X-Status-Reason', $file->getErrors());
         }
-
-        $file_path = 'assets/'.$file->getNameWithExtension();
-        $coupon = R::dispense('coupons');
-
-        $coupon->machine_id  = $_POST['machine_id'];
-        $coupon->business_id = $_POST['business_id'];
-        $coupon->name        = $_POST['name'];
-        $coupon->description = $_POST['description'];
-        $coupon->image       = $file_path;
-
-
-        $id = R::store($coupon);
-        if ($request == 'coupon')
-            header('Location: /admin#/coupons');
-        else
-            header('Location: /admin#/machines/'.$_POST['machine_id']);
-        exit();
     }
     catch (Exception $e)
     {

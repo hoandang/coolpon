@@ -18,15 +18,16 @@ CREATE TABLE IF NOT EXISTS businesses (
 ) ENGINE=MYISAM DEFAULT CHARSET=UTF8;
 
 CREATE TABLE IF NOT EXISTS coupons (
-    id          INTEGER NOT NULL AUTO_INCREMENT,
-    machine_id  INTEGER NOT NULL,
-    business_id INTEGER NOT NULL,
-    name        VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    image       TEXT NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (machine_id) REFERENCES  machines(id),
-    FOREIGN KEY (business_id) REFERENCES businesses(id)
+    id           INTEGER NOT NULL AUTO_INCREMENT,
+    machine_id   INTEGER NOT NULL,
+    business_id  INTEGER NOT NULL,
+    name         VARCHAR(255) NOT NULL,
+    expired_date VARCHAR(20) NOT NULL,
+    description  TEXT NOT NULL,
+    image        TEXT NOT NULL,
+    PRIMARY KEY  (id),
+    FOREIGN KEY  (machine_id) REFERENCES  machines(id),
+    FOREIGN KEY  (business_id) REFERENCES businesses(id)
 ) ENGINE=MYISAM DEFAULT CHARSET=UTF8;
 
 TRUNCATE TABLE coupons;
@@ -45,12 +46,12 @@ INSERT INTO machines(name, post_code, address) VALUES
 ("Machine 2", 2000, "100 Market St"),
 ("Machine 3", 2000, "680 George St");
 
-INSERT INTO coupons(machine_id, business_id, name, description, image) VALUES
-(1, 1, 'Coupon 1', 'This is coupon 1', 'assets/1.jpg'),
-(1, 2, 'Coupon 2', 'This is coupon 2', 'assets/2.jpg'),
-(1, 4, 'Coupon 3', 'This is coupon 3', 'assets/3.jpg'),
-(2, 2, 'Coupon 4', 'This is coupon 4', 'assets/4.jpg'),
-(2, 3, 'Coupon 5', 'This is coupon 5', 'assets/5.jpg'),
-(3, 2, 'Coupon 6', 'This is coupon 6', 'assets/6.jpg'),
-(3, 5, 'Coupon 7', 'This is coupon 7', 'assets/7.jpg'),
-(2, 5, 'Coupon 8', 'This is coupon 4', 'assets/4.jpg');
+INSERT INTO coupons(machine_id, business_id, name, expired_date, description, image) VALUES
+(1, 1, 'Coupon 1', '12/09/2013', 'This is coupon 1', 'assets/1.jpg'),
+(1, 2, 'Coupon 2', '02/08/2013', 'This is coupon 2', 'assets/2.jpg'),
+(1, 4, 'Coupon 3', '22/09/2013', 'This is coupon 3', 'assets/3.jpg'),
+(2, 2, 'Coupon 4', '12/12/2013', 'This is coupon 4', 'assets/4.jpg'),
+(2, 3, 'Coupon 5', '31/10/2013', 'This is coupon 5', 'assets/5.jpg'),
+(3, 2, 'Coupon 6', '12/11/2013', 'This is coupon 6', 'assets/6.jpg'),
+(3, 5, 'Coupon 7', '31/07/2013', 'This is coupon 7', 'assets/7.jpg'),
+(2, 5, 'Coupon 8', '12/09/2013', 'This is coupon 4', 'assets/4.jpg');

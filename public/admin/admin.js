@@ -106,7 +106,9 @@ var EditCouponByMachineView = Backbone.View.extend({
                     current_machine: current_machine.attributes[0],
                     businesses: businesses.models
                 });
+
             that.$el.html(template);
+            $('#description').wysihtml5();
         });
     }
 });
@@ -178,6 +180,7 @@ var EditCouponView = Backbone.View.extend({
                 machines: machines.models
             });
             that.$el.html(template);
+            $('#description').wysihtml5();
         });
     }
 });

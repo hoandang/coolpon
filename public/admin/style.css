@@ -5,6 +5,9 @@ ul {
 {
   vertical-align: middle;
 }
+.table {
+    table-layout:fixed;
+}
 label.file-upload input[type=file] {
     position: absolute;
     top: 0;
@@ -40,14 +43,37 @@ label.file-upload input[type=file] {
     color: #fff;
 }
 
+.table .post-code {
+    text-align: center;
+    width: 75px;
+}
+.table .operation {
+    text-align: center;
+}
 
-
-
-
-
-
-
-
-
-
-
+.table .thumb {
+    text-align: center;
+    width: 200px;
+}
+.table .name {
+    vertical-align: top;
+}
+.table .expired-date {
+    text-align: center;
+    width: 95px;
+}
+#editor {
+	max-height: 250px;
+	height: 250px;
+	background-color: white;
+	border-collapse: separate; 
+	border: 1px solid rgb(204, 204, 204); 
+	padding: 4px; 
+	box-sizing: content-box; 
+	-webkit-box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset; 
+	box-shadow: rgba(0, 0, 0, 0.0745098) 0px 1px 1px 0px inset;
+	border-top-right-radius: 3px; border-bottom-right-radius: 3px;
+	border-bottom-left-radius: 3px; border-top-left-radius: 3px;
+	overflow: scroll;
+	outline: none;
+}
