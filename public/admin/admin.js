@@ -8,6 +8,9 @@ var Businesses = Backbone.Collection.extend({
 });
 
 var Coupons = Backbone.Collection.extend({ 
+    url: '/coupons'
+});
+var CouponsByMachine = Backbone.Collection.extend({ 
     initialize: function(models, options) {
         this.id = options.id;
     },
@@ -22,6 +25,9 @@ var Machine = Backbone.Model.extend({
 });
 var Business = Backbone.Model.extend({
     urlRoot: '/businesses'
+});
+var Coupon = Backbone.Model.extend({
+    urlRoot: '/coupons'
 });
 
 //--------------- VIEWS --------------------
@@ -46,14 +52,14 @@ var MachinesView = Backbone.View.extend({
 var MachineDetailView = Backbone.View.extend({
     el: '.page',
     render: function(options) {
-        var coupons           = new Coupons([], { id: options.id });
+        var coupons           = new CouponsByMachine([], { id: options.id });
         var current_machine   = new Machine({ id: options.id });
         var machines          = new Machines();
         var that              = this;
 
         // Fetch multiple backbone collections synchronously
         $.when(machines.fetch(), coupons.fetch(), current_machine.fetch()).done(function() {
-            var template = _.template($('#coupons').html(), {
+            var template = _.template($('#coupons-by-machine').html(), {
                 coupons:         coupons.models, 
                 current_machine: current_machine.attributes[0],
                 machines:        machines.models
@@ -63,6 +69,7 @@ var MachineDetailView = Backbone.View.extend({
     }
 });
 
+// EDIT MACHINE FORM
 var EditMachineView = Backbone.View.extend({
     el: '.page',
     render: function() {
@@ -84,23 +91,27 @@ var EditMachineView = Backbone.View.extend({
     }
 })
 
-var EditCouponView = Backbone.View.extend({ 
+// EDIT COUPON BY MACHINE FORM
+var EditCouponByMachineView = Backbone.View.extend({ 
     el: '.page',
     render: function(options) {
         var current_machine = new Machine({ id: options.id });
+        var businesses      = new Businesses();
         var that = this;
 
-        current_machine.fetch({ 
-            success: function(current_machine) {
-                var template = _.template($('#edit-coupon-template').html(), {
-                    current_machine: current_machine.attributes[0]
+        $.when(businesses.fetch(), current_machine.fetch()).done(function() {
+            var template = _.template(
+                $('#edit-coupon-by-machine-template').html(), 
+                {
+                    current_machine: current_machine.attributes[0],
+                    businesses: businesses.models
                 });
-                that.$el.html(template);
-            }
+            that.$el.html(template);
         });
     }
 });
 
+// BUSINESS LIST
 var BusinessesView = Backbone.View.extend({ 
     el: '.page',
     render: function() {
@@ -116,6 +127,7 @@ var BusinessesView = Backbone.View.extend({
     }
 });
 
+// EDIT BUSINESS FORM
 var EditBusinessView = Backbone.View.extend({ 
     el: '.page',
     render: function() {
@@ -136,15 +148,52 @@ var EditBusinessView = Backbone.View.extend({
         return false;
     }
 });
+
+// COUPONS LIST
+var CouponsView = Backbone.View.extend({
+    el: '.page',
+    render: function() {
+        var that = this;
+        var coupons = new Coupons();
+        coupons.fetch({
+            success: function (coupons) {
+                var template = _.template($('#coupons').html(), 
+                                          { coupons: coupons.models });
+                that.$el.html(template);
+            }
+        });
+    }
+});
+// EDIT COUPON FORM
+var EditCouponView = Backbone.View.extend({ 
+    el: '.page',
+    render: function() {
+        var businesses = new Businesses();
+        var machines   = new Machines();
+        var that       = this;
+
+        $.when(businesses.fetch(), machines.fetch()).done(function() {
+            var template = _.template($('#edit-coupon-template').html(), {
+                businesses: businesses.models,
+                machines: machines.models
+            });
+            that.$el.html(template);
+        });
+    }
+});
+
 //------------- ROUTER ---------------------
 var Router = Backbone.Router.extend({
     routes: {
         '' : 'home',
         'machines/new-machine' : 'editMachine',
-        'machines/:id/new-coupon' : 'editCoupon',
+        'machines/:id/new-coupon' : 'editCouponByMachine',
         'machines/:id' : 'machineDetail',
         'businesses' : 'viewBusinesses',
-        'businesses/new-business' : 'editBusiness'
+        'businesses/new-business' : 'editBusiness',
+        'coupons' : 'viewCoupons',
+        'coupons/new-coupon' : 'editCoupon',
+        'users': 'viewUsers'
     }
 });
 
@@ -157,9 +206,9 @@ router.on('route:editMachine', function() {
     var editMachineView = new EditMachineView();
     editMachineView.render();
 });
-router.on('route:editCoupon', function(id) {
-    var editCouponView = new EditCouponView();
-    editCouponView.render({ id: id });
+router.on('route:editCouponByMachine', function(id) {
+    var editCouponByMachineView = new EditCouponByMachineView();
+    editCouponByMachineView.render({ id: id });
 });
 router.on('route:machineDetail', function(id) {
     var machineDetailView = new MachineDetailView();
@@ -172,6 +221,17 @@ router.on('route:viewBusinesses', function() {
 router.on('route:editBusiness', function() {
     var editBusinessView = new EditBusinessView();
     editBusinessView.render();
-})
+});
+router.on('route:viewCoupons', function() {
+    var couponsView = new CouponsView();
+    couponsView.render();
+});
+router.on('route:editCoupon', function() {
+    var editCouponView = new EditCouponView();
+    editCouponView.render();
+});
+router.on('route:viewUsers', function() {
+    console.log('view users');
+});
 
 Backbone.history.start();

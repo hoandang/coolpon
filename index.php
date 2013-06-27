@@ -36,7 +36,7 @@ $app->get('/machines', function() use ($app) {
         }
         else
         {
-            $machines = R::find('machines');
+            $machines = R::findAll('machines');
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode(R::exportAll($machines));
         }
@@ -52,7 +52,7 @@ $app->get('/machines', function() use ($app) {
 $app->get('/machines/:id', function($id) use ($app) {
     try 
     {
-        $machine = R::find('machines', 'id=?', array($id));
+        $machine = R::findOne('machines', 'id=?', array($id));
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($machine));
     } 
@@ -67,6 +67,7 @@ $app->get('/machines/:id', function($id) use ($app) {
 $app->get('/machines/:id/coupons', function($id) use ($app) {
     try 
     {
+        //$coupons = R::find('coupons', ' machine_id=? ORDER BY id DESC ', array($id));
         $coupons = R::find('coupons', 'machine_id=?', array($id));
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($coupons));
@@ -78,11 +79,68 @@ $app->get('/machines/:id/coupons', function($id) use ($app) {
     }
 });
 
+// GET requests for /coupons
+$app->get('/coupons', function() use ($app) {
+    try 
+    {
+        $coupons = R::findAll('coupons');
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($coupons));
+    } 
+    catch (Exception $e)
+    {
+        $app->response()->status(404);
+        $app->response()->header('X-Status-Reason', $e->getMessage());
+    }
+});
+
+// POST requests to /coupons
+$app->post('/coupons', function() use ($app) {
+    $request = $_POST['request'];
+    try
+    {
+        $storage = new \Upload\Storage\FileSystem('assets');
+        $file = new \Upload\File('image', $storage);
+ 
+        try 
+        {
+            $file->upload();
+        } 
+        catch (Exception $e) 
+        {
+            $app->response()->status(400);
+            $app->response()->header('X-Status-Reason', $file->getErrors());
+        }
+
+        $file_path = 'assets/'.$file->getNameWithExtension();
+        $coupon = R::dispense('coupons');
+
+        $coupon->machine_id  = $_POST['machine_id'];
+        $coupon->business_id = $_POST['business_id'];
+        $coupon->name        = $_POST['name'];
+        $coupon->description = $_POST['description'];
+        $coupon->image       = $file_path;
+
+
+        $id = R::store($coupon);
+        if ($request == 'coupon')
+            header('Location: /admin#/coupons');
+        else
+            header('Location: /admin#/machines/'.$_POST['machine_id']);
+        exit();
+    }
+    catch (Exception $e)
+    {
+        $app->response()->status(404);
+        $app->response()->header('X-Status-Reason', $e->getMessage());
+    }
+});
+
 // GET requests for /businesses
 $app->get('/businesses', function() use ($app) {
     try 
     {
-        $businesses = R::find('businesses');
+        $businesses = R::findAll('businesses');
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($businesses));
     } 
@@ -141,44 +199,6 @@ $app->post('/machines', function() use ($app) {
     catch (Exception $e)
     {
         $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
-    }
-});
-
-// POST requests to /machines/:id/coupons
-$app->post('/machines/:id/coupons', function($id) use ($app) {
-    try
-    {
-        $storage = new \Upload\Storage\FileSystem('assets');
-        $file = new \Upload\File('image', $storage);
- 
-        try 
-        {
-            $file->upload();
-        } 
-        catch (Exception $e) 
-        {
-            $app->response()->status(400);
-            $app->response()->header('X-Status-Reason', $file->getErrors());
-        }
-
-        $file_path = 'assets/'.$file->getNameWithExtension();
-        $coupon = R::dispense('coupons');
-
-        $coupon->machine_id  = $_POST['machine_id'];
-        $coupon->business_id = 1;
-        $coupon->name        = $_POST['name'];
-        $coupon->description = $_POST['description'];
-        $coupon->image       = $file_path;
-
-
-        $id = R::store($coupon);
-        header('Location: /admin#/machines/'.$_POST['machine_id']); 
-        exit();
-    }
-    catch (Exception $e)
-    {
-        $app->response()->status(400);
         $app->response()->header('X-Status-Reason', $e->getMessage());
     }
 });
