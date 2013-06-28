@@ -21,6 +21,13 @@ var MachinesCoupons = Backbone.Collection.extend({
 var Machine = Backbone.Model.extend({
     urlRoot: '/machines'
 });
+ 
+var Coupon = Backbone.Model.extend({
+    urlRoot: '/coupons'
+});
+var Business = Backbone.Model.extend({
+    urlRoot: '/businesses'
+});
 
 //--------------- VIEWS --------------------
 var HomeView = Backbone.View.extend({
@@ -52,11 +59,9 @@ var HomeView = Backbone.View.extend({
                 if (searched_machines_models.length > 0)
                 {
                     $.each(searched_machines_models, function() {
-                        var machine   = this;
-                        locations.push(this.attributes.address + ' Sydney, NSW ' + post_code);
-                        searched_machines_list.append('<li><a href="#/machines/' + 
-                                                        this.attributes.id + '?post_code=' + post_code + '">' 
-                                                      + this.attributes.name + '</a></li>');
+                        var machine   = this.toJSON();
+                        locations.push(machine.address + ' Sydney, NSW ' + post_code);
+                        searched_machines_list.append('<li><a href="#/machines/' + machine.id + '?post_code=' + post_code + '">' + machine.name + '</a></li>');
                     });
                     code_address(locations);
                 }
@@ -85,9 +90,26 @@ var MachineView = Backbone.View.extend({
             var template = _.template($('#coupons').html(), {
                 coupons: coupons.models, 
                 searched_machines: searched_machines.models,
-                current_machine: current_machine.attributes[0]
+                current_machine: current_machine.attributes[0],
+                post_code: options.post_code
             });
             that.$el.html(template);
+        });
+    }
+});
+
+var CouponDetailView = Backbone.View.extend({
+    el: '.page',
+    render: function(options) {
+        var coupon = new Coupon({ id: options.coupon_id });
+        var that   = this;
+        coupon.fetch({
+            success: function() {
+                var template = _.template($('#coupon').html(), {
+                    coupon: coupon.toJSON()[0]
+                });
+                that.$el.html(template);
+            }
         });
     }
 });
@@ -96,7 +118,8 @@ var MachineView = Backbone.View.extend({
 var Router = Backbone.Router.extend({
     routes: {
         '': 'home',
-        'machines/:id?post_code=:post_code' : 'machine_detail'
+        'machines/:id?post_code=:post_code' : 'machine_detail',
+        'machines/:machine_id/coupons/:coupon_id' : 'coupon_detail'
     }
 });
 
@@ -108,6 +131,10 @@ router.on('route:home', function() {
 router.on('route:machine_detail', function(id, post_code) {
     var machineView = new MachineView();
     machineView.render({ id: id, post_code: post_code });
+});
+router.on('route:coupon_detail', function(machine_id, coupon_id) {
+    var couponDetailView = new CouponDetailView();
+    couponDetailView.render({ machine_id: machine_id, coupon_id: coupon_id });
 });
 
 Backbone.history.start();

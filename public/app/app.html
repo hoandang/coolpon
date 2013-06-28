@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>CoolPon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="public/app/style.css" rel="stylesheet" />
 </head>
@@ -42,7 +43,7 @@
         </ul>
         <div class="clearfix"></div>
         <hr />
-        <h3><%= current_machine.name %></h3>
+        <h3><%= current_machine.name %> - <span class="alert-info"><%=current_machine.address%>, Sydney, NSW <%=post_code%></span></h3>
         <ul id="coupons-list" class="thumbnails">
             <% _.each(coupons, function(coupon) { %>
             <li class="span3">
@@ -53,6 +54,17 @@
             </li>
             <% }); %>
         </ul>
+    </script>
+
+    <!-- COUPON DETAIL -->
+    <script type="text/template" id="coupon">
+    <a href="javascript:history.back()">Back</a>
+    <h3><%=coupon.name%> - <span class="alert-error">Expired Date: <%=coupon.expired_date%></span></h3>
+    <hr/>
+    <p><img width="440px" height="266px" src="<%=coupon.image%>"/></p>
+    <hr/>
+    <div class="coupon-content"><%=coupon.description%></div>
+    <hr/>
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>

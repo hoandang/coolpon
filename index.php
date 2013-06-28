@@ -94,6 +94,21 @@ $app->get('/coupons', function() use ($app) {
     }
 });
 
+// GET requests for /coupons/:id
+$app->get('/coupons/:id', function($id) use ($app) {
+    try 
+    {
+        $machine = R::findOne('coupons', 'id=?', array($id));
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($machine));
+    } 
+    catch (Exception $e)
+    {
+        $app->response()->status(404);
+        $app->response()->header('X-Status-Reason', $e->getMessage());
+    }
+});
+
 // POST requests to /coupons
 $app->post('/coupons', function() use ($app) {
     $request = $_POST['request'];
