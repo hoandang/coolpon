@@ -18,6 +18,14 @@ var CouponsByMachine = Backbone.Collection.extend({
         return '/machines/' + this.id + '/coupons';
     }
 });
+var PostCodes = Backbone.Collection.extend({ 
+    initialize: function(options) {
+        this.query = options.query;
+    },
+    url: function() {
+        return '/locations/search?q=' + this.query;
+    }
+});
 
 //---------- MODELS -----------------
 var Machine = Backbone.Model.extend({
@@ -31,8 +39,7 @@ var Coupon = Backbone.Model.extend({
 });
 
 //--------------- VIEWS --------------------
-
-// Render home page contains machines
+// MACHINE LIST
 var MachinesView = Backbone.View.extend({
     el: '.page',
     render: function() {
@@ -75,21 +82,74 @@ var EditMachineView = Backbone.View.extend({
     render: function() {
         var template = _.template($('#edit-machine-template').html(), {});
         this.$el.html(template);
+
+        $('p#machine-suburb input').autocomplete({ 
+            minLength: 3,
+            source: function (request, response) {
+                $.get('/locations/search?q=' + request.term, function(data) {
+                    response($.map(data, function (item) {
+                        return {
+                            label: item.location + ' ' + item.state + ' ' + item.postcode + ', AUSTRALIA',
+                            value: item.location + ' ' + item.state + ' ' + item.postcode + ', AUSTRALIA',
+                        }
+                    }));
+                });
+            }
+        });
     },
     events: {
         'submit .edit-machine-form' : 'save_machine'
     },
     save_machine: function(ev) {
         var machine_detail = $(ev.currentTarget).serializeObject();
-        var machine = new Machine();
-        machine.save(machine_detail, {
-            success: function (machine) {
-                router.navigate('', {trigger: true});
-            }
-        });
+        if (is_validated(machine_detail))
+        {
+            $('.edit-machine-form #machine-suburb').removeClass('error');
+            $('.edit-machine-form #machine-address').removeClass('error');
+
+            var geocoder = new google.maps.Geocoder();
+            var address  = machine_detail.address + ', ' + machine_detail.suburb; 
+            geocoder.geocode({ 'address': address }, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK)
+                {
+                    var result = results[0].formatted_address;
+                    if (address.toUpperCase() != result.toUpperCase())
+                    {
+                        var num_commas = result.match(/,/g).length;
+                        var address_number = result.split(' ');
+                        if (num_commas == 2 && !isNaN(address_number[0]))
+                        {
+                            console.log('Did you mean: ' + result.toUpperCase());
+                            $('.edit-machine-form #machine-suburb').addClass('error');
+                            $('.edit-machine-form #machine-address').addClass('error');
+                        }
+                        else
+                        {
+                            console.log('The address is not valid or existed');
+                            $('.edit-machine-form #machine-suburb').addClass('error');
+                            $('.edit-machine-form #machine-address').addClass('error');
+                        }
+                    }
+                    else
+                    {
+                        console.log('Valid');
+                        var machine = new Machine();
+                        machine.save(machine_detail, {
+                            success: function (machine) {
+                                router.navigate('', {trigger: true});
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        else 
+        {
+            indicate_errors(machine_detail);
+        }
         return false;
     }
-})
+});
 
 // EDIT COUPON BY MACHINE FORM
 var EditCouponByMachineView = Backbone.View.extend({ 

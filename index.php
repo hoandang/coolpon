@@ -20,7 +20,44 @@ $app->get('/', function() use ($app) {
 
 // GET admin page from template
 $app->get('/admin', function() use ($app) {
-    $app->render('admin/admin.html');
+    $app->render('admin/index.html');
+});
+
+// GET requests for /locations
+$app->get('/locations/search', function() use ($app) {
+    if (strlen($app->request()->get('q')) >= 3)
+    {
+        $query     = explode(' ', $app->request()->get('q'));
+        $postcode = '-1'; 
+        $location = '-1'; 
+        $locations;
+
+        if (sizeof($query) <= 1) 
+        {
+            if (is_numeric($query[0]))
+                $postcode = $query[0];
+            else
+                $location = $query[0];
+            $locations = R::find('australia_postcode', 'postcode like ? or location like ?', 
+                                array("%$postcode%", "%$location%"));
+        }
+        else
+        {
+            $postcode  = is_numeric($query[0]) ? $query[0] : $query[1];
+            $location  = is_numeric($query[0]) ? $query[1] : $query[0];
+            $locations = R::find('australia_postcode', 'postcode like ? and location like ?', 
+                                array("%$postcode%", "%$location%"));
+        }
+        if (sizeof($locations) > 0 )
+        {
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($locations));
+        }
+        else
+            response_json_error($app, 404, 'Invalid location and post code');
+    }
+    else
+        response_json_error($app, 411, 'Ihe query is required at least 3 characters');
 });
 
 // GET requests for /machines and /machines?post_code=?
@@ -43,8 +80,7 @@ $app->get('/machines', function() use ($app) {
     } 
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 501, $e->getMessage());
     }
 });
 
@@ -58,8 +94,7 @@ $app->get('/machines/:id', function($id) use ($app) {
     } 
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 501, $e->getMessage());
     }
 });
 
@@ -74,8 +109,7 @@ $app->get('/machines/:id/coupons', function($id) use ($app) {
     } 
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 501, $e->getMessage());
     }
 });
 
@@ -104,8 +138,7 @@ $app->get('/coupons/:id', function($id) use ($app) {
     } 
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 501, $e->getMessage());
     }
 });
 
@@ -125,32 +158,45 @@ $app->post('/coupons', function() use ($app) {
             $file->upload();
             $file_path = 'assets/'.$file->getNameWithExtension();
 
-            $coupon = R::dispense('coupons');
+            $machine_id   = $_POST['machine_id'];
+            $business_id  = $_POST['business_id'];
+            $expired_date = $_POST['expired_date'];
+            $name         = $_POST['name'];
+            $description  = $_POST['description'];
 
-            $coupon->machine_id   = $_POST['machine_id'];
-            $coupon->expired_date = $_POST['expired_date'];
-            $coupon->business_id  = $_POST['business_id'];
-            $coupon->name         = $_POST['name'];
-            $coupon->description  = $_POST['description'];
-            $coupon->image        = $file_path;
-
-            $id = R::store($coupon);
-            if ($request == 'coupon')
-                header('Location: /admin#/coupons');
+            if ($machine_id == '' || $business_id == '' || $expired_date == ''
+                || $name == '' || $description == '')
+            {
+                echo 'Bad Request';
+            }
             else
-                header('Location: /admin#/machines/'.$_POST['machine_id']);
-            exit();
+            {
+                $coupon = R::dispense('coupons');
+
+                $coupon->machine_id   = (int)machine_id;
+                $coupon->expired_date = (string)expired_date;
+                $coupon->business_id  = (int)business_id;
+                $coupon->name         = (string)name;
+                $coupon->description  = (string)description;
+                $coupon->image        = $file_path;
+
+                $id = R::store($coupon);
+                if ($request == 'coupon')
+                    header('Location: /admin#/coupons');
+                else
+                    header('Location: /admin#/machines/'.$_POST['machine_id']);
+                exit();
+            }
         } 
         catch (Exception $e) 
         {
-            $app->response()->status(400);
-            $app->response()->header('X-Status-Reason', $file->getErrors());
+            echo $e->getMessage().'<br/>';
+            echo $file->getErrors();
         }
     }
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        echo $e->getMessage();
     }
 });
 
@@ -164,8 +210,7 @@ $app->get('/businesses', function() use ($app) {
     } 
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 501, $e->getMessage());
     }
 });
 
@@ -177,21 +222,29 @@ $app->post('/businesses', function() use ($app) {
         $body    = $request->getBody();
         $input   = json_decode($body);
 
-        $businesses = R::dispense('businesses');
+        $name        = $input->name;
+        $description = $input->description;
+        $address     = $input->address;
 
-        $businesses->name        = (string)$input->name;
-        $businesses->address     = (string)$input->address;
-        $businesses->description = (string)$input->description;
+        if ($name == '' || $description == '' || $address == '')
+            response_json_error($app, 400, 'Bad Request');
+        else
+        {
+            $businesses = R::dispense('businesses');
 
-        $id = R::store($businesses);
+            $businesses->name        = $name;
+            $businesses->address     = $address;
+            $businesses->description = $description;
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode(R::exportAll($businesses));
+            $id = R::store($businesses);
+
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($businesses));
+        }
     }
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 501, $e->getMessage());
     }
 });
 
@@ -203,23 +256,39 @@ $app->post('/machines', function() use ($app) {
         $body    = $request->getBody();
         $input   = json_decode($body);
 
-        $machine = R::dispense('machines');
+        $name     = $input->name;
+        $suburb = $input->suburb;
+        $address  = $input->address;
 
-        $machine->name      = (string)$input->name;
-        $machine->post_code = (int)$input->post_code;
-        $machine->address   = (string)$input->address;
+        if ($name == '' || $suburb == '' || $address == '')
+            response_json_error($app, 400, 'Bad Request');
+        else
+        {
+            $machine = R::dispense('machines');
 
-        $id = R::store($machine);
+            $machine->name    = (string)$name;
+            $machine->suburb  = (string)strtoupper($suburb);
+            $machine->address = (string)strtoupper($address);
 
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode(R::exportAll($machine));
+            $id = R::store($machine);
+
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($machine));
+        }
     }
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 501, $e->getMessage());
     }
 });
 
 // Run awesome app
 $app->run();
+
+function response_json_error($app, $http_code, $msg)
+{
+    $app->response()->status($http_code);
+    $app->response()->header('Content-Type', 'application/json');
+    $app->response()->header('X-Status-Reason', $msg);
+    echo json_encode(array('error' => $msg));
+}
