@@ -15,13 +15,23 @@ var Coupons = Backbone.Collection.extend({
     url: '/coupons'
 });
 var CouponsByMachine = Backbone.Collection.extend({ 
-    initialize: function(models, options) {
+    initialize: function(options) {
         this.id = options.id;
     },
     url: function() {
         return '/machines/' + this.id + '/coupons';
     }
 });
+
+var CategoriesByMachine = Backbone.Collection.extend({ 
+    initialize: function(options) {
+        this.id = options.id;
+    },
+    url: function() {
+        return '/machines/' + this.id + '/categories';
+    }
+});
+
 var PostCodes = Backbone.Collection.extend({ 
     initialize: function(options) {
         this.query = options.query;

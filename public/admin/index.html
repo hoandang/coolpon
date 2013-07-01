@@ -41,6 +41,7 @@
         <% }); %>
     </ul>
     </script>
+
     <!-- EDIT CATEGORY -->
     <script type="text/template" id="edit-category-template">
     <form class="edit-category-form">
@@ -107,7 +108,6 @@
         <p class="control-group">
             <input type="text" id="machine-category" name="categories" value=""/>
         </p>
-        <br/>
         <p class="control-group" id="machine-suburb">
             <label>Location & Post Code:</label>
             <input type="text" name="suburb" class="span4" value="<%=machine ? machine.suburb : ''%>"/>

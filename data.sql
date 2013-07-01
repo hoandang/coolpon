@@ -85,12 +85,12 @@ INSERT INTO services(machine_id, category_id) VALUES
 (1, 2), -- m1, c2
 (1, 3), -- m1, c3
 (2, 2), -- m2, c2
+(2, 1), -- m2, c1
+(2, 3), -- m2, c3
 (3, 1), -- m3, c1
 (3, 4), -- m3, c4
-(2, 3), -- m2, c3
 (4, 2), -- m4, c2
-(4, 3), -- m4, c3
-(2, 1); -- m2, c1
+(4, 3); -- m4, c3
 
 INSERT INTO businesses(name, address, description) VALUES
 ('Business 1', '12 ABC Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),

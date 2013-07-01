@@ -41,7 +41,6 @@ $app->get('/categories/search', function() use ($app) {
     try
     {
         $categories = R::find('categories', 'name like ?', array("%%%$q%%"));
-
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($categories));
     }
@@ -50,6 +49,26 @@ $app->get('/categories/search', function() use ($app) {
         response_json_error($app, 400, $e->getMessage());
     }
 });
+
+// GET CATEGORIES FROM MACHINE
+$app->get('/machines/:id/categories', function($id) use ($app) {
+    try 
+    {
+        $sql = "SELECT DISTINCT c.id, c.name ".
+            "FROM services s JOIN machines m, categories c ".
+            "WHERE m.id = $id ".
+            "AND c.id = s.category_id AND m.id = s.machine_id";
+        $records = R::getAll($sql);
+        $categories = R::convertToBeans('categories', $records);
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($categories));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
 // GET CATEGORIES/:ID
 $app->get('/categories/:id', function($id) use ($app) {
     try 
@@ -292,7 +311,27 @@ $app->put('/machines/:id', function($id) use ($app) {
             $machine->suburb  = (string)strtoupper($suburb);
             $machine->address = (string)strtoupper($address);
 
-            $id = R::store($machine);
+            $machine_id = R::store($machine);
+
+            R::exec("DELETE FROM services WHERE machine_id = $machine_id");
+
+            if ($input->categories != '') {
+                $categories = explode(',', $input->categories);
+                try
+                {
+                    foreach($categories as $category_id) 
+                    {
+                        $service = R::dispense('services');
+                        $service->machine_id  = $machine_id;
+                        $service->category_id = $category_id;
+                        $service_id = R::store($service);
+                    }
+                }
+                catch (Exception $e) 
+                {
+                    response_json_error($app, 400, $e->getMessage());
+                }
+            }
 
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode(R::exportAll($machine));

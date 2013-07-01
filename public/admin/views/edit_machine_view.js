@@ -6,12 +6,23 @@ var EditMachineView = Backbone.View.extend({
         if (options.id)
         {
             that.machine = new Machine({ id: options.id });
-            that.machine.fetch({
-                success: function() {
-                    var template = _.template($('#edit-machine-template').html(), {machine: that.machine.toJSON()[0]});
-                    that.$el.html(template);
-                    location_autocomplete();
-                }
+            var categories_by_machine = new CategoriesByMachine({ id: options.id });
+
+            $.when(that.machine.fetch(), categories_by_machine.fetch()).done(function(){
+                var template = _.template($('#edit-machine-template').html(), {
+                    machine: that.machine.toJSON()[0], 
+                });
+                that.$el.html(template);
+                location_autocomplete();
+                var pre_populate_data = $.map(categories_by_machine.models, function(value) {
+                    return value.attributes;
+                });
+                    
+                $('#machine-category').tokenInput('/categories/search', {
+                    prePopulate: pre_populate_data,
+                    preventDuplicates: true,
+                    theme: 'facebook'
+                });
             });
         }
         else
@@ -20,6 +31,7 @@ var EditMachineView = Backbone.View.extend({
             that.$el.html(template);
             location_autocomplete();
             $('#machine-category').tokenInput('/categories/search', {
+                preventDuplicates: true,
                 theme: 'facebook'
             });
         }
