@@ -82,3 +82,15 @@ p#machine-suburb input,
 p#machine-address input {
     text-transform: uppercase;
 }
+
+#category-list {
+    margin: 0;
+}
+#category-list li{
+    clear: both;
+}
+#category-list li strong{
+    float: left;
+    width: 200px;
+    margin: 10px 10px 10px 0;
+}

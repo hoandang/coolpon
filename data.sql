@@ -2,13 +2,38 @@ DROP DATABASE coolpon;
 CREATE DATABASE IF NOT EXISTS coolpon;
 USE coolpon;
 
-CREATE TABLE IF NOT EXISTS machines (
+-- TRUNCATE TABLE coupons;
+-- TRUNCATE TABLE categories_machines;
+-- TRUNCATE TABLE businesses;
+-- TRUNCATE TABLE machines;
+-- TRUNCATE TABLE categories;
+
+CREATE TABLE IF NOT EXISTS categories (
     id      INTEGER NOT NULL AUTO_INCREMENT,
     name    VARCHAR(255) NOT NULL,
-    suburb  VARCHAR(255) NOT NULL,
-    address VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
-) ENGINE=MYISAM DEFAULT CHARSET=UTF8;
+);
+
+CREATE TABLE IF NOT EXISTS machines (
+    id          INTEGER NOT NULL AUTO_INCREMENT,
+    name        VARCHAR(255) NOT NULL,
+    suburb      VARCHAR(255) NOT NULL,
+    address     VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS services (
+    id          INTEGER NOT NULL AUTO_INCREMENT,
+    machine_id  INTEGER,
+    category_id INTEGER,
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+       ON DELETE CASCADE
+       ON UPDATE CASCADE,
+    FOREIGN KEY (machine_id) REFERENCES machines(id)
+       ON DELETE CASCADE
+       ON UPDATE CASCADE,
+    PRIMARY KEY (id)
+);
 
 CREATE TABLE IF NOT EXISTS businesses (
     id          INTEGER NOT NULL AUTO_INCREMENT,
@@ -16,7 +41,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     address     VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     PRIMARY KEY (id)
-) ENGINE=MYISAM DEFAULT CHARSET=UTF8;
+);
 
 CREATE TABLE IF NOT EXISTS coupons (
     id           INTEGER NOT NULL AUTO_INCREMENT,
@@ -27,9 +52,13 @@ CREATE TABLE IF NOT EXISTS coupons (
     description  TEXT NOT NULL,
     image        TEXT NOT NULL,
     PRIMARY KEY  (id),
-    FOREIGN KEY  (machine_id) REFERENCES  machines(id),
+    FOREIGN KEY  (machine_id) REFERENCES  machines(id)
+       ON DELETE CASCADE
+       ON UPDATE CASCADE,
     FOREIGN KEY  (business_id) REFERENCES businesses(id)
-) ENGINE=MYISAM DEFAULT CHARSET=UTF8;
+       ON DELETE CASCADE
+       ON UPDATE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS australia_postcode (
     id       INTEGER NOT NULL AUTO_INCREMENT,
@@ -37,12 +66,31 @@ CREATE TABLE IF NOT EXISTS australia_postcode (
     location VARCHAR(35) NOT NULL,
     state    VARCHAR(3) NOT NULL,
     PRIMARY KEY (id)
-) ENGINE=MYISAM DEFAULT CHARSET=UTF8;
+);
 
-TRUNCATE TABLE australia_postcode;
-TRUNCATE TABLE coupons;
-TRUNCATE TABLE machines;
-TRUNCATE TABLE businesses;
+INSERT INTO categories(name) VALUES
+('Food & Drink'),
+('Events & Activities'),
+('Beauty & Spa'),
+('Fitness');
+
+INSERT INTO machines(name, suburb, address) VALUES
+('Machine 1', 'SYDNEY NSW 2000, AUSTRALIA', '123 PITT STREET'),
+('Machine 2', 'SYDNEY NSW 2000, AUSTRALIA', '100 MARKET ST'),
+('Machine 3', 'SYDNEY NSW 2000, AUSTRALIA', '680 GEORGE ST'),
+('Machine 4', 'PARRAMATTA NSW 2150, AUSTRALIA', '9 WENTWORTH STREET');
+
+INSERT INTO services(machine_id, category_id) VALUES
+(1, 1), -- m1, c1
+(1, 2), -- m1, c2
+(1, 3), -- m1, c3
+(2, 2), -- m2, c2
+(3, 1), -- m3, c1
+(3, 4), -- m3, c4
+(2, 3), -- m2, c3
+(4, 2), -- m4, c2
+(4, 3), -- m4, c3
+(2, 1); -- m2, c1
 
 INSERT INTO businesses(name, address, description) VALUES
 ('Business 1', '12 ABC Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
@@ -51,11 +99,6 @@ INSERT INTO businesses(name, address, description) VALUES
 ('Business 4', '12 OKKM Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
 ('Business 5', '12 GFDM Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere');
 
-INSERT INTO machines(name, suburb, address) VALUES
-('Machine 1', 'SYDNEY SOUTH, NSW 2000', '123 PITT STREET'),
-('Machine 2', 'SYDNEY SOUTH, NSW 2000', '100 MARKET ST'),
-('Machine 3', 'SYDNEY SOUTH, NSW 2000', '680 GEORGE ST'),
-('Machine 4', 'PARRAMATTA, NSW 2150', '9 WENTWORTH STREET');
 
 INSERT INTO coupons(machine_id, business_id, name, expired_date, description, image) VALUES
 (1, 1, 'Coupon 1', '12/09/2013', 'This is coupon 1', 'assets/1.jpg'),

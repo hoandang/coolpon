@@ -23,11 +23,119 @@ $app->get('/admin', function() use ($app) {
     $app->render('admin/index.html');
 });
 
-// GET requests for /locations
+// GET CATEGORIES
+$app->get('/categories', function() use ($app) {
+    try
+    {
+        $categories = R::findAll('categories');
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($categories));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+$app->get('/categories/search', function() use ($app) {
+    $q = $app->request()->get('q');
+    try
+    {
+        $categories = R::find('categories', 'name like ?', array("%%%$q%%"));
+
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($categories));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+// GET CATEGORIES/:ID
+$app->get('/categories/:id', function($id) use ($app) {
+    try 
+    {
+        $category = r::findOne('categories', 'id=?', array($id));
+        $app->response()->header('content-type', 'application/json');
+        echo json_encode(r::exportall($category));
+    } 
+    catch (exception $e)
+    {
+        response_json_error($app, 400, $e->getmessage());
+    }
+});
+// POST CATEGORY
+$app->post('/categories', function() use ($app) {
+    try
+    {
+        $request = $app->request();
+        $body    = $request->getBody();
+        $input   = json_decode($body);
+
+        $name = $input->name;
+
+        if ($name == '')
+            response_json_error($app, 400, 'Bad Request');
+        else
+        {
+            $categories = R::dispense('categories');
+            $categories->name        = $name;
+            $id = R::store($categories);
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($categories));
+        }
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+// PUT CATEGORY
+$app->put('/categories/:id', function($id) use ($app) {
+    try
+    {
+        $request = $app->request();
+        $body    = $request->getBody();
+        $input   = json_decode($body);
+
+        $name     = $input->name;
+
+        if ($name == '')
+            response_json_error($app, 400, 'Bad Request');
+        else
+        {
+            $category = R::findOne('categories', 'id=?', array($id));
+            $category->name    = (string)$name;
+
+            $id = R::store($category);
+
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($category));
+        }
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+// DELETE CATEGORY
+$app->delete('/categories/:id', function($id) use ($app) {
+    try
+    {
+        $category = R::findOne('categories', 'id=?', array($id));
+        R::trash($category);
+        $app->response()->status(204);
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// GET LOCATIONS
 $app->get('/locations/search', function() use ($app) {
     if (strlen($app->request()->get('q')) >= 3)
     {
-        $query     = explode(' ', $app->request()->get('q'));
+        $query    = explode(' ', $app->request()->get('q'));
         $postcode = '-1'; 
         $location = '-1'; 
         $locations;
@@ -38,8 +146,7 @@ $app->get('/locations/search', function() use ($app) {
                 $postcode = $query[0];
             else
                 $location = $query[0];
-            $locations = R::find('australia_postcode', 'postcode like ? or location like ?', 
-                                array("%$postcode%", "%$location%"));
+            $locations = R::find('australia_postcode', 'postcode like ? or location like ?', array("%$postcode%", "%$location%"));
         }
         else
         {
@@ -60,7 +167,7 @@ $app->get('/locations/search', function() use ($app) {
         response_json_error($app, 411, 'Ihe query is required at least 3 characters');
 });
 
-// GET requests for /machines and /machines?post_code=?
+// GET MACHINES
 $app->get('/machines', function() use ($app) {
     try 
     {
@@ -83,18 +190,17 @@ $app->get('/machines', function() use ($app) {
         response_json_error($app, 501, $e->getMessage());
     }
 });
-
-// GET requests for /machines/:id
+// GET MACHINE/:ID
 $app->get('/machines/:id', function($id) use ($app) {
     try 
     {
-        $machine = R::findOne('machines', 'id=?', array($id));
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode(R::exportAll($machine));
+        $machine = r::findOne('machines', 'id=?', array($id));
+        $app->response()->header('content-type', 'application/json');
+        echo json_encode(r::exportall($machine));
     } 
-    catch (Exception $e)
+    catch (exception $e)
     {
-        response_json_error($app, 501, $e->getMessage());
+        response_json_error($app, 501, $e->getmessage());
     }
 });
 
@@ -110,6 +216,105 @@ $app->get('/machines/:id/coupons', function($id) use ($app) {
     catch (Exception $e)
     {
         response_json_error($app, 501, $e->getMessage());
+    }
+});
+
+// POST MACHINES
+$app->post('/machines', function() use ($app) {
+    try
+    {
+        $request = $app->request();
+        $body    = $request->getBody();
+        $input   = json_decode($body);
+
+        $name       = $input->name;
+        $suburb     = $input->suburb;
+        $address    = $input->address;
+
+        if ($name == '' || $suburb == '' || $address == '')
+            response_json_error($app, 400, 'Bad Request');
+        else
+        {
+            $machine = R::dispense('machines');
+
+            $machine->name    = (string)$name;
+            $machine->suburb  = (string)strtoupper($suburb);
+            $machine->address = (string)strtoupper($address);
+
+            $machine_id = R::store($machine);
+
+            if ($input->categories != '') {
+                $categories = explode(',', $input->categories);
+                try
+                {
+                    foreach($categories as $category_id) 
+                    {
+                        $service = R::dispense('services');
+                        $service->machine_id  = $machine_id;
+                        $service->category_id = $category_id;
+                        $service_id = R::store($service);
+                    }
+                }
+                catch (Exception $e) 
+                {
+                    response_json_error($app, 400, $e->getMessage());
+                }
+            }
+
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($machine));
+        }
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// PUT MACHINES
+$app->put('/machines/:id', function($id) use ($app) {
+    try
+    {
+        $request = $app->request();
+        $body    = $request->getBody();
+        $input   = json_decode($body);
+
+        $name     = $input->name;
+        $suburb = $input->suburb;
+        $address  = $input->address;
+
+        if ($name == '' || $suburb == '' || $address == '')
+            response_json_error($app, 400, 'Bad Request');
+        else
+        {
+            $machine = R::findOne('machines', 'id=?', array($id));
+            $machine->name    = (string)$name;
+            $machine->suburb  = (string)strtoupper($suburb);
+            $machine->address = (string)strtoupper($address);
+
+            $id = R::store($machine);
+
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($machine));
+        }
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// DELETE MACHINES
+$app->delete('/machines/:id', function($id) use ($app) {
+    try
+    {
+        $machine = R::findOne('machines', 'id=?', array($id));
+        R::trash($machine);
+        $app->response()->status(204);
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 404, $e->getMessage());
     }
 });
 
@@ -142,7 +347,7 @@ $app->get('/coupons/:id', function($id) use ($app) {
     }
 });
 
-// POST requests to /coupons
+// POST COUPONS
 $app->post('/coupons', function() use ($app) {
     $request = $_POST['request'];
     try
@@ -214,7 +419,7 @@ $app->get('/businesses', function() use ($app) {
     }
 });
 
-// POST requests to /businesses
+// POST BUSINESS
 $app->post('/businesses', function() use ($app) {
     try
     {
@@ -248,39 +453,6 @@ $app->post('/businesses', function() use ($app) {
     }
 });
 
-// POST requests to /machines
-$app->post('/machines', function() use ($app) {
-    try
-    {
-        $request = $app->request();
-        $body    = $request->getBody();
-        $input   = json_decode($body);
-
-        $name     = $input->name;
-        $suburb = $input->suburb;
-        $address  = $input->address;
-
-        if ($name == '' || $suburb == '' || $address == '')
-            response_json_error($app, 400, 'Bad Request');
-        else
-        {
-            $machine = R::dispense('machines');
-
-            $machine->name    = (string)$name;
-            $machine->suburb  = (string)strtoupper($suburb);
-            $machine->address = (string)strtoupper($address);
-
-            $id = R::store($machine);
-
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode(R::exportAll($machine));
-        }
-    }
-    catch (Exception $e)
-    {
-        response_json_error($app, 501, $e->getMessage());
-    }
-});
 
 // Run awesome app
 $app->run();

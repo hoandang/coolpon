@@ -4,27 +4,70 @@
     <meta charset="utf-8"/>
     <title>Coolpon</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="public/lib/bootstrap-wysihtml5-0.0.2.css" rel="stylesheet">
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" />
-    <link href="public/lib/bootstrap-fileupload.min.css" rel="stylesheet" />
-    <link href="public/admin/style.css" rel="stylesheet" />
+    <link href="public/admin/css/bootstrap-wysihtml5-0.0.2.css" rel="stylesheet">
+    <link href="public/admin/css/bootstrap-fileupload.min.css" rel="stylesheet" />
+    <link href="public/admin/css/token-input.css" rel="stylesheet" />
+    <link href="public/admin/css/token-input-facebook.css" rel="stylesheet" />
+    <link href="public/admin/css/style.css" rel="stylesheet" />
+    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyCDYr8ddbtZccZkXWP-GTNrTy8uWCprUZk&sensor=false"></script>
 </head>
 <body>
     <div class="container">
         <ul class="span12" id="navigator">
-            <li><a href="#">Machines</a></li>
+            <li><a href="#">Categories</a></li>
+            <li><a href="#/machines">Machines</a></li>
             <li><a href="#/coupons">Coupons</a></li>
             <li><a href="#/businesses">Business</a></li>
-            <li><a href="#/users">Users</a></li>
         </ul>
         <div class="page"></div>
     </div>
 
+    <!-- CATEGORIES LIST -->
+    <script type="text/template" id="categories">
+    <h3>Categories</h3>
+    <a href="#/categories/new" class="btn btn-success">
+        <i class="icon-plus icon-white"></i>
+        <span>New Category</span>
+    </a>
+    <br /><br />
+    <ul id="category-list">
+        <% _.each(categories, function(category) { %>
+        <li>
+            <strong><%=category.get('name')%></strong>
+            <a href="#/categories/<%=category.id%>/edit" class="btn btn-warning">Edit</a>
+        </li>
+        <% }); %>
+    </ul>
+    </script>
+    <!-- EDIT CATEGORY -->
+    <script type="text/template" id="edit-category-template">
+    <form class="edit-category-form">
+        <legend><%=category ? 'Edit' : 'Create'%> Category</legend>
+        <p>
+            <label>Name: </label>
+            <input type="text" name="name" value="<%=category ? category.name : ''%>" />
+        </p>
+        <hr/>
+        <button class="btn btn-primary" type="submit">
+            <i class="icon-upload icon-white"></i>
+            <span><%=category ? 'Update' : 'Create'%></span>
+        </button>
+        <% if (category) { %>
+        <input type="hidden" name="id" value="<%=category.id%>" id="id"/>
+        <button class="btn btn-danger delete-category">
+            <i class="icon-remove icon-white"></i>
+            <span>Delete</span>
+        </button>
+        <% }; %>
+    </form>
+    </script>
+
     <!-- MACHINE LIST -->
     <script type="text/template" id="machines">
     <h3>Machines</h3>
-    <a href="#/machines/new-machine" class="btn btn-success">
+    <a href="#/machines/new" class="btn btn-success">
         <i class="icon-plus icon-white"></i>
         <span>New Machine</span>
     </a>
@@ -44,8 +87,7 @@
                 <td><%= machine.get('address') %>, <%=machine.get('suburb')%></td>
                 <td class="operation">
                     <a href="#/machines/<%= machine.id %>" class="btn">View</a>
-                    <a href="#" class="btn btn-inverse">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
+                    <a href="#/machines/<%=machine.id%>/edit" class="btn btn-warning">Edit</a>
                 </td>
             </tr>
             <% }); %>
@@ -56,24 +98,37 @@
     <!-- EDIT MACHINE FORM TEMPLATE -->
     <script type="text/template" id="edit-machine-template">
     <form class="edit-machine-form" autocomplete="off">
-        <legend>Create Machine</legend>
+        <legend><%=machine ? 'Edit' : 'Create'%> Machine</legend>
         <p class="control-group" id="machine-name">
             <label>Name: </label>
-            <input type="text" name="name" value="" />
+            <input type="text" name="name" value="<%=machine ? machine.name : ''%>"/>
         </p>
+        <label>Categories: </label>
+        <p class="control-group">
+            <input type="text" id="machine-category" name="categories" value=""/>
+        </p>
+        <br/>
         <p class="control-group" id="machine-suburb">
             <label>Location & Post Code:</label>
-            <input type="text" name="suburb" class="span4" autocomplete="off"/>
+            <input type="text" name="suburb" class="span4" value="<%=machine ? machine.suburb : ''%>"/>
         </p>
         <p class="control-group" id="machine-address">
             <label>Address: </label>
-            <input type="text" class="span4" name="address" value="" />
+            <input type="text" class="span4" name="address" value="<%=machine ? machine.address : ''%>" />
         </p>
         <hr/>
         <button class="btn btn-primary" type="submit">
             <i class="icon-upload icon-white"></i>
-            <span>Create</span>
+            <span><%=machine ? 'Update' : 'Create'%></span>
         </button>
+
+        <% if (machine) { %>
+        <input type="hidden" name="id" value="<%=machine.id%>" id="id"/>
+        <button class="btn btn-danger delete-machine">
+            <i class="icon-remove icon-white"></i>
+            <span>Delete</span>
+        </button>
+        <% }; %>
     </form>
     </script>
 
@@ -125,7 +180,7 @@
     <!-- COUPONS TEMPLATE -->
     <script type="text/template" id="coupons">
     <h3>Coupons</h3>
-    <a href="#/coupons/new-coupon" class="btn btn-success">
+    <a href="#/coupons/new" class="btn btn-success">
         <i class="icon-plus icon-white"></i>
         <span>New Coupon</span>
     </a>
@@ -216,7 +271,7 @@
     </ul>
     <div class="clearfix"></div>
     <h3><%= current_machine.name %></h3>
-    <a href="#/machines/<%= current_machine.id %>/new-coupon" class="btn btn-success">
+    <a href="#/machines/<%= current_machine.id %>/new" class="btn btn-success">
         <i class="icon-plus icon-white"></i>
         <span>New Coupon</span>
     </a>
@@ -249,7 +304,7 @@
     <!--- BUSINESS TEMPLATE --->
     <script type="text/template" id="businesses">
     <h3>Businesses</h3>
-    <a href="#/businesses/new-business" class="btn btn-success">
+    <a href="#/businesses/new" class="btn btn-success">
         <i class="icon-plus icon-white"></i>
         <span>New Business</span>
     </a>
@@ -301,19 +356,33 @@
     </form>
     </script>
 
-    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyCDYr8ddbtZccZkXWP-GTNrTy8uWCprUZk&sensor=false"></script>
-    <script src="public/lib/wysihtml5-0.3.0_rc2.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.6/require.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
-    <script src="public/lib/bootstrap-wysihtml5-0.0.2.min.js"></script>
-    <script src="public/lib/bootstrap-fileupload.min.js"></script>
-    <script src="public/lib/bootstrap-inputmask.min.js"></script>
-    <script src="public/lib/bootstrap-typeahead.min.js"></script>
-    <script src="public/lib/utility.js"></script>
-    <script src="public/lib/validation.js"></script>
+    <script src="public/admin/js/wysihtml5-0.3.0_rc2.min.js"></script>
+    <script src="public/admin/js/bootstrap-wysihtml5-0.0.2.min.js"></script>
+    <script src="public/admin/js/bootstrap-fileupload.min.js"></script>
+    <script src="public/admin/js/bootstrap-inputmask.min.js"></script>
+    <script src="public/admin/js/bootstrap-typeahead.min.js"></script>
+    <script src="public/admin/js/bootstrap-typeahead.min.js"></script>
+    <script src="public/admin/js/jquery.tokeninput.js"></script>
+
+    <script src="public/admin/js/utility.js"></script>
+    <script src="public/admin/js/validation.js"></script>
+
+    <script src="public/admin/views/categories_view.js"></script>
+    <script src="public/admin/views/edit_category_view.js"></script>
+    <script src="public/admin/views/machines_view.js"></script>
+    <script src="public/admin/views/coupons_view.js"></script>
+    <script src="public/admin/views/businesses_view.js"></script>
+    <script src="public/admin/views/machine_coupons_view.js"></script>
+    <script src="public/admin/views/edit_coupon_by_machine_view.js"></script>
+    <script src="public/admin/views/edit_business_view.js"></script>
+    <script src="public/admin/views/edit_machine_view.js"></script>
+    <script src="public/admin/views/edit_coupon_view.js"></script>
+
     <script src="public/admin/app.js"></script>
+    <script src="public/admin/router.js"></script>
 </body>
 </html>
