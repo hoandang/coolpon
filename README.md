@@ -1,1 +1,1 @@
-## Coolpon web app with the team A: Slim - RedBean - Backbone
+## Coupon Search Engine with the A-Team: Slim - RedBean - Backbone

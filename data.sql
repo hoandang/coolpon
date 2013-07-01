@@ -99,7 +99,6 @@ INSERT INTO businesses(name, address, description) VALUES
 ('Business 4', '12 OKKM Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
 ('Business 5', '12 GFDM Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere');
 
-
 INSERT INTO coupons(machine_id, business_id, name, expired_date, description, image) VALUES
 (1, 1, 'Coupon 1', '12/09/2013', 'This is coupon 1', 'assets/1.jpg'),
 (1, 2, 'Coupon 2', '02/08/2013', 'This is coupon 2', 'assets/2.jpg'),
