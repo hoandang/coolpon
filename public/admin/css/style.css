@@ -94,3 +94,7 @@ p#machine-address input {
     width: 200px;
     margin: 10px 10px 10px 0;
 }
+
+.btn-custom-width {
+    width: 100px !important;
+}

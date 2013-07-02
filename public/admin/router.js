@@ -8,8 +8,10 @@ var Router = Backbone.Router.extend ({
         'machines':            'viewMachines',
         'machines/new':        'editMachine',
         'machines/:id/edit':   'editMachine',
-        'machines/:id/new':    'editCouponByMachine',
         'machines/:id':        'machineDetail',
+
+        'machines/:id/coupons/new':          'editCouponByMachine',
+        'machines/:m_id/coupons/:c_id/edit': 'editCouponByMachine',
 
         'businesses':          'viewBusinesses',
         'businesses/new':      'editBusiness',
@@ -43,8 +45,8 @@ router.on('route:editMachine', function(id) {
     editMachineView.render({ id: id });
 });
 var editCouponByMachineView = new EditCouponByMachineView();
-router.on('route:editCouponByMachine', function(id) {
-    editCouponByMachineView.render({ id: id });
+router.on('route:editCouponByMachine', function(m_id, c_id) {
+    editCouponByMachineView.render({ machine_id: m_id, coupon_id: c_id });
 });
 var machineCouponsView = new MachineCouponsView();
 router.on('route:machineDetail', function(id) {
@@ -67,8 +69,8 @@ router.on('route:viewCoupons', function() {
     couponsView.render();
 });
 var editCouponView = new EditCouponView();
-router.on('route:editCoupon', function() {
-    editCouponView.render();
+router.on('route:editCoupon', function(id) {
+    editCouponView.render({ id: id });
 });
 
 Backbone.history.start();

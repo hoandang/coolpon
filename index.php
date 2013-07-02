@@ -36,6 +36,7 @@ $app->get('/categories', function() use ($app) {
         response_json_error($app, 400, $e->getMessage());
     }
 });
+
 $app->get('/categories/search', function() use ($app) {
     $q = $app->request()->get('q');
     try
@@ -82,6 +83,7 @@ $app->get('/categories/:id', function($id) use ($app) {
         response_json_error($app, 400, $e->getmessage());
     }
 });
+
 // POST CATEGORY
 $app->post('/categories', function() use ($app) {
     try
@@ -97,7 +99,7 @@ $app->post('/categories', function() use ($app) {
         else
         {
             $categories = R::dispense('categories');
-            $categories->name        = $name;
+            $categories->name = $name;
             $id = R::store($categories);
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode(R::exportAll($categories));
@@ -123,7 +125,7 @@ $app->put('/categories/:id', function($id) use ($app) {
         else
         {
             $category = R::findOne('categories', 'id=?', array($id));
-            $category->name    = (string)$name;
+            $category->name = (string)$name;
 
             $id = R::store($category);
 
@@ -223,7 +225,7 @@ $app->get('/machines/:id', function($id) use ($app) {
     }
 });
 
-// GET requests for /machines/:id/coupons
+// GET COUPONS BY MACHINE
 $app->get('/machines/:id/coupons', function($id) use ($app) {
     try 
     {
@@ -357,94 +359,156 @@ $app->delete('/machines/:id', function($id) use ($app) {
     }
 });
 
-// GET requests for /coupons
+// GET COUPONS
 $app->get('/coupons', function() use ($app) {
     try 
     {
-        $coupons = R::findAll('coupons');
+        $sql= 'SELECT c.*, '.
+              'm.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
+              'b.name "business_name", b.address "business_address", b.description "business_desc "'.
+              'FROM coupons c '.
+              'JOIN machines m ON c.machine_id = m.id '.
+              'JOIN businesses b ON c.business_id = b.id';
+        $records = R::getAll($sql);
+        $coupons = R::convertToBeans('coupons', $records);
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($coupons));
     } 
     catch (Exception $e)
     {
-        $app->response()->status(404);
-        $app->response()->header('X-Status-Reason', $e->getMessage());
+        response_json_error($app, 404, $e->getMessage());
     }
 });
 
-// GET requests for /coupons/:id
+// GET COUPON
 $app->get('/coupons/:id', function($id) use ($app) {
     try 
     {
-        $machine = R::findOne('coupons', 'id=?', array($id));
+        $sql= 'SELECT c.*, '.
+              'm.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
+              'b.name "business_name", b.address "business_address", b.description "business_desc "'.
+              'FROM coupons c '.
+              'JOIN machines m ON c.machine_id = m.id '.
+              'JOIN businesses b ON c.business_id = b.id '.
+              'WHERE c.id = '.$id;
+        $record = R::getAll($sql);
+        $coupon = R::convertToBeans('coupon', $record);
         $app->response()->header('Content-Type', 'application/json');
-        echo json_encode(R::exportAll($machine));
+        echo json_encode(R::exportAll($coupon));
     } 
     catch (Exception $e)
     {
-        response_json_error($app, 501, $e->getMessage());
+        response_json_error($app, 404, $e->getMessage());
     }
 });
 
-// POST COUPONS
+// POST COUPON
 $app->post('/coupons', function() use ($app) {
     $request = $_POST['request'];
-    try
+
+    $machine_id   = $_POST['machine_id'];
+    $business_id  = $_POST['business_id'];
+    $expired_date = $_POST['expired_date'];
+    $name         = $_POST['name'];
+    $description  = $_POST['description'];
+
+    if ($machine_id == '' || $business_id == '' || $expired_date == ''
+        || $name == '') 
     {
-        $storage = new \Upload\Storage\FileSystem('assets');
-        $file = new \Upload\File('image', $storage);
-
-        $new_filename = uniqid();
-        $file->setName($new_filename);
-
-        try 
+        echo '<a href="javascript:history.back()">Back</a>';
+        echo '<br/>';
+        echo 'Bad Request.<br/>';
+        echo 'Mandatory fields need to be filled.';
+    }
+    else
+    {
+        try
         {
-            $file->upload();
-            $file_path = 'assets/'.$file->getNameWithExtension();
-
-            $machine_id   = $_POST['machine_id'];
-            $business_id  = $_POST['business_id'];
-            $expired_date = $_POST['expired_date'];
-            $name         = $_POST['name'];
-            $description  = $_POST['description'];
-
-            if ($machine_id == '' || $business_id == '' || $expired_date == ''
-                || $name == '' || $description == '')
+            $file_path = '';
+            if (isset($_POST['id']))
             {
-                echo 'Bad Request';
+                $coupon_id = $_POST['id'];
+                $coupon = R::findOne('coupons', 'id=?', array($coupon_id));
+                $coupon->machine_id   = (int)$machine_id;
+                $coupon->expired_date = (string)$expired_date;
+                $coupon->business_id  = (int)$business_id;
+                $coupon->name         = (string)$name;
+                $coupon->description  = (string)$description;
+                try
+                {
+                    $storage = new \Upload\Storage\FileSystem('assets');
+                    $file = new \Upload\File('image', $storage);
+
+                    $new_filename = uniqid();
+                    $file->setName($new_filename);
+
+                    $file->upload();
+                    $file_path = 'assets/'.$file->getNameWithExtension();
+                }
+                catch (Exception $e) {
+                    $file_path = $coupon->image;
+                }
+                $coupon->image = $file_path;
+                $id = R::store($coupon);
             }
             else
             {
+                try
+                {
+                    $storage = new \Upload\Storage\FileSystem('assets');
+                    $file = new \Upload\File('image', $storage);
+
+                    $new_filename = uniqid();
+                    $file->setName($new_filename);
+
+                    $file->upload();
+                    $file_path = 'assets/'.$file->getNameWithExtension();
+                }
+                catch (Exception $e)
+                {
+                    $file_path = 'assets/no-image.jpg';
+                }
                 $coupon = R::dispense('coupons');
-
-                $coupon->machine_id   = (int)machine_id;
-                $coupon->expired_date = (string)expired_date;
-                $coupon->business_id  = (int)business_id;
-                $coupon->name         = (string)name;
-                $coupon->description  = (string)description;
+                $coupon->machine_id   = (int)$machine_id;
+                $coupon->expired_date = (string)$expired_date;
+                $coupon->business_id  = (int)$business_id;
+                $coupon->name         = (string)$name;
+                $coupon->description  = (string)$description;
                 $coupon->image        = $file_path;
-
                 $id = R::store($coupon);
-                if ($request == 'coupon')
-                    header('Location: /admin#/coupons');
-                else
-                    header('Location: /admin#/machines/'.$_POST['machine_id']);
-                exit();
             }
-        } 
-        catch (Exception $e) 
-        {
-            echo $e->getMessage().'<br/>';
-            echo $file->getErrors();
+
+            if ($request == 'coupon')
+                header('Location: /admin#/coupons');
+            else
+                header('Location: /admin#/machines/'.$_POST['machine_id']);
+            exit();
         }
-    }
-    catch (Exception $e)
-    {
-        echo $e->getMessage();
+        catch (Exception $e) {
+            echo $e->getMessage().' at line '.$e->getLine();
+        }
     }
 });
 
-// GET requests for /businesses
+// DELETE COUPON
+$app->delete('/coupons/:id', function($id) use ($app) {
+    try
+    {
+        $coupon = R::findOne('coupons', 'id=?', array($id));
+        if ($coupon)
+        {
+            R::trash($coupon);
+            $app->response()->status(204);
+        }
+        else
+            response_json_error($app, 404, $e->getMessage());
+    }
+    catch (Exception $e) {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// GET BUSINESSES
 $app->get('/businesses', function() use ($app) {
     try 
     {

@@ -7,9 +7,9 @@ var EditCategoryView = Backbone.View.extend({
         {
             that.category = new Category({id: options.id});
             that.category.fetch({
-                success: function() {
+                success: function(category) {
                     var template = _.template($('#edit-category-template').html(), 
-                                              {category: that.category.toJSON()[0]});
+                                              {category: category.toJSON()[0]});
                     that.$el.html(template);
                 }
             });
@@ -40,6 +40,11 @@ var EditCategoryView = Backbone.View.extend({
         new_category.save(category_detail, {
             success: function (new_category) {
                 router.navigate('', {trigger: true});
+            }, 
+            error: function() {
+                $(ev.currentTarget).children('.control-group').
+                    addClass('error').
+                    append('<strong class="help-inline">Required</strong>');
             }
         });
         return false;

@@ -4,9 +4,9 @@
     <meta charset="utf-8"/>
     <title>Coolpon</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="public/admin/css/bootstrap-wysihtml5-0.0.2.css" rel="stylesheet">
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" />
-    <link href="public/admin/css/bootstrap-wysihtml5-0.0.2.css" rel="stylesheet">
     <link href="public/admin/css/bootstrap-fileupload.min.css" rel="stylesheet" />
     <link href="public/admin/css/token-input.css" rel="stylesheet" />
     <link href="public/admin/css/token-input-facebook.css" rel="stylesheet" />
@@ -46,7 +46,7 @@
     <script type="text/template" id="edit-category-template">
     <form class="edit-category-form">
         <legend><%=category ? 'Edit' : 'Create'%> Category</legend>
-        <p>
+        <p class="control-group">
             <label>Name: </label>
             <input type="text" name="name" value="<%=category ? category.name : ''%>" />
         </p>
@@ -135,28 +135,37 @@
     <!-- EDIT COUPON BY MACHINE TEMPLATE -->
     <script type="text/template" id="edit-coupon-by-machine-template">
     <form action="/coupons" method="post" enctype="multipart/form-data">
-        <legend>Create Coupon - <a href="#/machines/<%= current_machine.id %>"><%= current_machine.name %></a></legend>
+        <legend><%=coupon ? 'Edit' : 'Create Coupon'%> <%=coupon ? coupon.name : ''%> - <a href="#/machines/<%= current_machine.id %>"><%= current_machine.name %></a></legend>
         <input type="hidden" id="machine_id" name="machine_id" value=<%= current_machine.id %> />
         <input type="hidden" name="request" value="coupon-by-machine" />
         <p>
-            <input placeholder="Enter Coupon Name" type="text" name="name" value="" />
-            <input placeholder="Enter Expired Date" name="expired_date" type="text" data-mask="99/99/9999"/>
+            <input type="text" name="name" value="<%=coupon ? coupon.name : ''%>" placeholder="Enter Coupon Name"/>
+            <input placeholder="Enter Expired Date" value="<%=coupon ? coupon.expired_date : ''%>" name="expired_date" type="text" data-mask="99/99/9999"/>
         </p>
         <p>
             <select name="business_id">
-                <option value="-1">Pick a business...</option>
+                <option value="">Pick a business...</option>
+                <% var business_id = coupon ? coupon.business_id : '' %>
                 <% _.each(businesses, function(business) { %>
-                <option value="<%= business.id %>"><%= business.get('name') %></option>
+                    <% if (business_id == business.id) { %>
+                        <option selected="selected" value="<%= business.id %>"><%= business.get('name') %></option>
+                    <% } else { %>
+                        <option value="<%= business.id %>"><%= business.get('name') %></option>
+                    <% }; %>
                 <% }); %>
             </select>
         </p>
-        <hr/>
         <p>
-            <textarea class="span12" rows="11" id="description" name="description" placeholder="Enter Coupon's Description ..."></textarea>
+            <textarea class="span12" rows="11" id="description" 
+                name="description" placeholder="Enter Coupon's Description ...">
+                    <%=coupon ? coupon.description : ''%>
+            </textarea>
         </p>
         <p>
             <div class="fileupload fileupload-new" data-provides="fileupload">
-                <div class="fileupload-new thumbnail" style="width: 200px; height: 150px;"><img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=no+image"/></div>
+                <div class="fileupload-new thumbnail" style="width: 200px; height: 150px;">
+                    <img src="<%=coupon ? coupon.image : 'http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=no+image'%>"/>
+                </div>
                 <div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
                 <div>
                     <span class="btn btn-file">
@@ -174,10 +183,18 @@
             <i class="icon-upload icon-white"></i>
             <span>Create</span>
         </button>
+
+        <% if (coupon) { %>
+        <input type="hidden" name="id" value="<%=coupon.id%>" id="id"/>
+        <button class="btn btn-danger delete-coupon-machine">
+            <i class="icon-remove icon-white"></i>
+            <span>Delete</span>
+        </button>
+        <% }; %>
     </form>
     </script>
 
-    <!-- COUPONS TEMPLATE -->
+    <!-- COUPONS VIEW -->
     <script type="text/template" id="coupons">
     <h3>Coupons</h3>
     <a href="#/coupons/new" class="btn btn-success">
@@ -190,6 +207,8 @@
             <tr>
                 <th class="name">Name</th>
                 <th class="thumb">Image</th>
+                <th class="">Machine</th>
+                <th class="">Business</th>
                 <th class="expired-date">Expired Date</th>
                 <th></th>
             </tr>
@@ -199,45 +218,62 @@
             <tr>
                 <td class="name"><%= coupon.get('name') %></td>
                 <td class="thumb"><img width="150px" height="70px" src="<%= coupon.get('image') %>" /></td>
+                <td class="name"><%=coupon.get('machine_name')%></td>
+                <td class="name"><%=coupon.get('business_name')%></td>
                 <td class="expired-date"><%=coupon.get('expired_date') %></td>
                 <td class="operation">
-                    <a href="#" class="btn btn-inverse">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
+                    <a href="#/coupons/<%=coupon.id%>/edit" class="btn btn-warning">Edit</a>
                 </td>
             </tr>
             <% }); %>
         </tbody>
     </table>
     </script>
-    <!-- EDIT COUPON FORM TEMPLATE -->
+
+    <!-- EDIT COUPON TEMPLATE -->
     <script type="text/template" id="edit-coupon-template">
     <form action="/coupons" method="post" enctype="multipart/form-data">
-        <legend>Create Coupon</legend>
+        <legend><%=coupon ? 'Edit' : 'Create Coupon'%> <%=coupon ? coupon.name : ''%></legend>
         <input type="hidden" name="request" value="coupon"/>
         <p>
-            <input type="text" name="name" value="" placeholder="Enter Coupon Name"/>
-            <input placeholder="Enter Expired Date" name="expired_date" type="text" data-mask="99/99/9999"/>
+            <input type="text" name="name" value="<%=coupon ? coupon.name : ''%>" placeholder="Enter Coupon Name"/>
+            <input placeholder="Enter Expired Date" value="<%=coupon ? coupon.expired_date : ''%>" name="expired_date" type="text" data-mask="99/99/9999"/>
         </p>
         <p>
             <select name="machine_id">
                 <option value="">Pick a machine...</option>
+                <% var machine_id = coupon ? coupon.machine_id : '' %>
                 <% _.each(machines, function(machine) { %>
-                <option value="<%= machine.id %>"><%= machine.get('name') %></option>
+                    <% if (machine_id == machine.id) { %>
+                        <option selected="selected" value="<%= machine.id %>"><%= machine.get('name') %></option>
+                    <% } else { %>
+                        <option value="<%= machine.id %>"><%= machine.get('name') %></option>
+                    <% }; %>
                 <% }); %>
             </select>
             <select name="business_id">
                 <option value="">Pick a business...</option>
+                <% var business_id = coupon ? coupon.business_id : '' %>
                 <% _.each(businesses, function(business) { %>
-                <option value="<%= business.id %>"><%= business.get('name') %></option>
+                    <% if (business_id == business.id) { %>
+                        <option selected="selected" value="<%= business.id %>"><%= business.get('name') %></option>
+                    <% } else { %>
+                        <option value="<%= business.id %>"><%= business.get('name') %></option>
+                    <% }; %>
                 <% }); %>
             </select>
         </p>
         <p>
-            <textarea class="span12" rows="11" id="description" name="description" placeholder="Enter Coupon's Description ..."></textarea>
+            <textarea class="span12" rows="11" id="description" 
+                name="description" placeholder="Enter Coupon's Description ...">
+                    <%=coupon ? coupon.description : ''%>
+            </textarea>
         </p>
         <p>
             <div class="fileupload fileupload-new" data-provides="fileupload">
-                <div class="fileupload-new thumbnail" style="width: 200px; height: 150px;"><img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=no+image"/></div>
+                <div class="fileupload-new thumbnail" style="width: 200px; height: 150px;">
+                    <img src="<%=coupon ? coupon.image : 'http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=no+image'%>"/>
+                </div>
                 <div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
                 <div>
                     <span class="btn btn-file">
@@ -253,8 +289,16 @@
         <hr/>
         <button class="btn btn-primary" type="submit">
             <i class="icon-upload icon-white"></i>
-            <span>Create</span>
+            <span><%=coupon ? 'Update' : 'Create'%></span>
         </button>
+
+        <% if (coupon) { %>
+        <input type="hidden" name="id" value="<%=coupon.id%>" id="id"/>
+        <button class="btn btn-danger delete-coupon">
+            <i class="icon-remove icon-white"></i>
+            <span>Delete</span>
+        </button>
+        <% }; %>
     </form>
     </script>
 
@@ -271,11 +315,11 @@
     </ul>
     <div class="clearfix"></div>
     <h3><%= current_machine.name %></h3>
-    <a href="#/machines/<%= current_machine.id %>/new" class="btn btn-success">
+    <a href="#/machines/<%= current_machine.id %>/coupons/new" class="btn btn-success">
         <i class="icon-plus icon-white"></i>
         <span>New Coupon</span>
     </a>
-    <hr/>
+    <br/><br/>
     <table class="table table-bordered table-hover">
         <thead>
             <tr>
@@ -292,8 +336,8 @@
                 <td class="thumb"><img width="150px" height="70px" src="<%= coupon.get('image') %>" /></td>
                 <td class="expired-date"><%=coupon.get('expired_date') %></td>
                 <td class="operation">
-                    <a href="#" class="btn btn-inverse">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
+                    <a href="#/machines/<%=current_machine.id%>/coupons/<%=coupon.id%>/edit"
+                        class="btn btn-warning btn-custom-width">Edit</a>
                 </td>
             </tr>
             <% }); %>
@@ -356,20 +400,18 @@
     </form>
     </script>
 
+    <script src="public/admin/js/wysihtml5-0.3.0_rc2.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
-    <script src="public/admin/js/wysihtml5-0.3.0_rc2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
     <script src="public/admin/js/bootstrap-wysihtml5-0.0.2.min.js"></script>
     <script src="public/admin/js/bootstrap-fileupload.min.js"></script>
     <script src="public/admin/js/bootstrap-inputmask.min.js"></script>
     <script src="public/admin/js/bootstrap-typeahead.min.js"></script>
     <script src="public/admin/js/bootstrap-typeahead.min.js"></script>
     <script src="public/admin/js/jquery.tokeninput.js"></script>
-
-    <script src="public/admin/js/utility.js"></script>
-    <script src="public/admin/js/validation.js"></script>
 
     <script src="public/admin/views/categories_view.js"></script>
     <script src="public/admin/views/edit_category_view.js"></script>
