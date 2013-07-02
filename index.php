@@ -143,8 +143,13 @@ $app->delete('/categories/:id', function($id) use ($app) {
     try
     {
         $category = R::findOne('categories', 'id=?', array($id));
-        R::trash($category);
-        $app->response()->status(204);
+        if ($category)
+        {
+            R::trash($category);
+            $app->response()->status(204);
+        }
+        else
+            response_json_error($app, 404, 'Resource Not Found');
     }
     catch (Exception $e)
     {
@@ -350,12 +355,17 @@ $app->delete('/machines/:id', function($id) use ($app) {
     try
     {
         $machine = R::findOne('machines', 'id=?', array($id));
-        R::trash($machine);
-        $app->response()->status(204);
+        if ($machine)
+        {
+            R::trash($machine);
+            $app->response()->status(204);
+        }
+        else
+            response_json_error($app, 404, 'Resource Not Found');
     }
     catch (Exception $e)
     {
-        response_json_error($app, 404, $e->getMessage());
+        response_json_error($app, 400, $e->getMessage());
     }
 });
 
@@ -501,7 +511,7 @@ $app->delete('/coupons/:id', function($id) use ($app) {
             $app->response()->status(204);
         }
         else
-            response_json_error($app, 404, $e->getMessage());
+            response_json_error($app, 404, 'Resource Not Found');
     }
     catch (Exception $e) {
         response_json_error($app, 400, $e->getMessage());
@@ -518,7 +528,21 @@ $app->get('/businesses', function() use ($app) {
     } 
     catch (Exception $e)
     {
-        response_json_error($app, 501, $e->getMessage());
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// GET BUSINESS
+$app->get('/businesses/:id', function($id) use ($app) {
+    try 
+    {
+        $business = R::findOne('businesses', 'id=?', array($id));
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($business));
+    } 
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
     }
 });
 
@@ -552,10 +576,59 @@ $app->post('/businesses', function() use ($app) {
     }
     catch (Exception $e)
     {
-        response_json_error($app, 501, $e->getMessage());
+        response_json_error($app, 400, $e->getMessage());
     }
 });
+// PUT BUSINESSES
+$app->put('/businesses/:id', function($id) use ($app) {
+    try
+    {
+        $request = $app->request();
+        $body    = $request->getBody();
+        $input   = json_decode($body);
 
+        $name        = $input->name;
+        $address     = $input->address;
+        $description = $input->description;
+
+        if ($name == '' || $address == '')
+            response_json_error($app, 400, 'Bad Request');
+        else
+        {
+            $business = R::findOne('businesses', 'id=?', array($id));
+            $business->name = (string)$name;
+            $business->address = (string)$address;
+            $business->description = (string)$description;
+
+            $id = R::store($business);
+
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($business));
+        }
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+// DELETE BUSINESS
+$app->delete('/businesses/:id', function($id) use ($app) {
+    try
+    {
+        $business = R::findOne('businesses', 'id=?', array($id));
+        if ($business) 
+        {
+            R::trash($business);
+            $app->response()->status(204);
+        }
+        else
+            response_json_error($app, 404, 'Resource Not Found');
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
 
 // Run awesome app
 $app->run();

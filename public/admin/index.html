@@ -20,6 +20,8 @@
             <li><a href="#/machines">Machines</a></li>
             <li><a href="#/coupons">Coupons</a></li>
             <li><a href="#/businesses">Business</a></li>
+            <li><a href="#/users">Users</a></li>
+            <li><a href="#/banner">Banners</a></li>
         </ul>
         <div class="page"></div>
     </div>
@@ -27,7 +29,7 @@
     <!-- CATEGORIES LIST -->
     <script type="text/template" id="categories">
     <h3>Categories</h3>
-    <a href="#/categories/new" class="btn btn-success">
+    <a href="#/categories/new" class="btn btn-info">
         <i class="icon-plus icon-white"></i>
         <span>New Category</span>
     </a>
@@ -51,7 +53,7 @@
             <input type="text" name="name" value="<%=category ? category.name : ''%>" />
         </p>
         <hr/>
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-success" type="submit">
             <i class="icon-upload icon-white"></i>
             <span><%=category ? 'Update' : 'Create'%></span>
         </button>
@@ -68,7 +70,7 @@
     <!-- MACHINE LIST -->
     <script type="text/template" id="machines">
     <h3>Machines</h3>
-    <a href="#/machines/new" class="btn btn-success">
+    <a href="#/machines/new" class="btn btn-info">
         <i class="icon-plus icon-white"></i>
         <span>New Machine</span>
     </a>
@@ -117,7 +119,7 @@
             <input type="text" class="span4" name="address" value="<%=machine ? machine.address : ''%>" />
         </p>
         <hr/>
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-success" type="submit">
             <i class="icon-upload icon-white"></i>
             <span><%=machine ? 'Update' : 'Create'%></span>
         </button>
@@ -179,7 +181,7 @@
             </div>
         </p>
         <hr/>
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-success" type="submit">
             <i class="icon-upload icon-white"></i>
             <span>Create</span>
         </button>
@@ -197,7 +199,7 @@
     <!-- COUPONS VIEW -->
     <script type="text/template" id="coupons">
     <h3>Coupons</h3>
-    <a href="#/coupons/new" class="btn btn-success">
+    <a href="#/coupons/new" class="btn btn-info">
         <i class="icon-plus icon-white"></i>
         <span>New Coupon</span>
     </a>
@@ -287,7 +289,7 @@
             </div>
         </p>
         <hr/>
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-success" type="submit">
             <i class="icon-upload icon-white"></i>
             <span><%=coupon ? 'Update' : 'Create'%></span>
         </button>
@@ -315,7 +317,7 @@
     </ul>
     <div class="clearfix"></div>
     <h3><%= current_machine.name %></h3>
-    <a href="#/machines/<%= current_machine.id %>/coupons/new" class="btn btn-success">
+    <a href="#/machines/<%= current_machine.id %>/coupons/new" class="btn btn-info">
         <i class="icon-plus icon-white"></i>
         <span>New Coupon</span>
     </a>
@@ -348,7 +350,7 @@
     <!--- BUSINESS TEMPLATE --->
     <script type="text/template" id="businesses">
     <h3>Businesses</h3>
-    <a href="#/businesses/new" class="btn btn-success">
+    <a href="#/businesses/new" class="btn btn-info">
         <i class="icon-plus icon-white"></i>
         <span>New Business</span>
     </a>
@@ -367,8 +369,7 @@
                 <td><%= business.get('name') %></td>
                 <td><%= business.get('address') %></td>
                 <td class="operation">
-                    <a href="#" class="btn btn-inverse">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
+                    <a href="#/businesses/<%=business.id%>/edit" class="btn btn-warning btn-custom-width">Edit</a>
                 </td>
             </tr>
             <% }); %>
@@ -379,24 +380,34 @@
     <!-- EDIT BUSINESS TEMPLATE -->
     <script type="text/template" id="edit-business-template">
     <form class="edit-business-form">
-        <legend>Create Business</legend>
-        <p>
+        <legend><%=business ? 'Edit' : 'Create'%> Business</legend>
+        <p class="control-group">
             <label>Name: </label>
-            <input type="text" name="name" value="" />
+            <input type="text" name="name" value="<%=business ? business.name : ''%>" />
         </p>
-        <p>
+        <p class="control-group">
             <label>Address: </label>
-            <input type="text" name="address" value="" />
+            <input type="text" class="span4" name="address" value="<%=business ? business.address : ''%>" />
         </p>
         <p>
-            <label>Description: </label>
-            <textarea name="description" class="span12" id="textarea" rows="6" placeholder="Enter a short synopsis"></textarea>
+            <textarea class="span12" rows="11" id="description" 
+                name="description" placeholder="Enter Coupon's Description ...">
+                    <%=business ? business.description : ''%>
+            </textarea>
         </p>
         <hr/>
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-success btn-custom-width" type="submit">
             <i class="icon-upload icon-white"></i>
-            <span>Create</span>
+            <span><%=business ? 'Update' : 'Create'%></span>
         </button>
+
+        <% if (business) { %>
+        <input type="hidden" name="id" value="<%=business.id%>" id="id"/>
+        <button class="btn btn-danger delete-business btn-custom-width">
+            <i class="icon-remove icon-white"></i>
+            <span>Delete</span>
+        </button>
+        <% }; %>
     </form>
     </script>
 

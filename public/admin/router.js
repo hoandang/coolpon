@@ -59,8 +59,8 @@ router.on('route:viewBusinesses', function() {
     businessesView.render();
 });
 var editBusinessView = new EditBusinessView();
-router.on('route:editBusiness', function() {
-    editBusinessView.render();
+router.on('route:editBusiness', function(id) {
+    editBusinessView.render({ id: id });
 });
 
 // COUPON VIEW

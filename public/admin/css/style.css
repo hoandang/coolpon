@@ -28,19 +28,25 @@ label.file-upload input[type=file] {
 
 #navigator {
     margin: 0 0 30px 0;
-    background-color: #0866C6;
+    /*background-color: #0866C6;*/
+    background-color: #FDA600;
 }
 #navigator li {
     text-align: center;
+}
+#navigator li a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #fff;
     width: 100px;
     float: left;
     padding: 15px 10px;
     background: rgba(255,255,255,0.1);
     border-left: 1px solid rgba(255,255,255,0.15);
 }
-
-#navigator li a {
-    color: #fff;
+#navigator li a:hover {
+    cursor: pointer;
+    background-color: #DC9930;
 }
 
 .table .post-code {
