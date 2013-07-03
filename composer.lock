@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "1579f8418ee18079bdb40318d432d44b",
+    "hash": "f0c6358f2dddabc7c9ffcbf78d533884",
     "packages": [
         {
             "name": "codeguy/upload",
@@ -47,6 +47,52 @@
                 "validation"
             ],
             "time": "2012-11-06 00:41:12"
+        },
+        {
+            "name": "raveren/kint",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/raveren/kint.git",
+                "reference": "7220259ffb228626d29dc4143738a8d4e7c8c31f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/raveren/kint/zipball/7220259ffb228626d29dc4143738a8d4e7c8c31f",
+                "reference": "7220259ffb228626d29dc4143738a8d4e7c8c31f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "Kint.class.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rokas Šleinius",
+                    "homepage": "https://github.com/raveren"
+                },
+                {
+                    "name": "Contributors",
+                    "homepage": "https://github.com/raveren/kint/contributors"
+                }
+            ],
+            "description": "Kint - debugging helper for PHP developers",
+            "homepage": "https://github.com/raveren/kint",
+            "keywords": [
+                "debug",
+                "kint",
+                "php"
+            ],
+            "time": "2013-06-17 19:29:28"
         },
         {
             "name": "slim/slim",
@@ -99,9 +145,9 @@
 
     ],
     "minimum-stability": "stable",
-    "stability-flags": [
-
-    ],
+    "stability-flags": {
+        "raveren/kint": 20
+    },
     "platform": [
 
     ],

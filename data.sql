@@ -2,23 +2,24 @@ DROP DATABASE coolpon;
 CREATE DATABASE IF NOT EXISTS coolpon;
 USE coolpon;
 
--- TRUNCATE TABLE coupons;
--- TRUNCATE TABLE categories_machines;
--- TRUNCATE TABLE businesses;
--- TRUNCATE TABLE machines;
--- TRUNCATE TABLE categories;
+CREATE TABLE IF NOT EXISTS users (
+    id    INTEGER NOT NULL AUTO_INCREMENT,
+    name  VARCHAR(20) NOT NULL,
+    email VARCHAR(200) NOT NULL,
+    PRIMARY KEY (id)
+);
 
 CREATE TABLE IF NOT EXISTS categories (
-    id      INTEGER NOT NULL AUTO_INCREMENT,
-    name    VARCHAR(255) NOT NULL,
+    id   INTEGER NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS machines (
-    id          INTEGER NOT NULL AUTO_INCREMENT,
-    name        VARCHAR(255) NOT NULL,
-    suburb      VARCHAR(255) NOT NULL,
-    address     VARCHAR(255) NOT NULL,
+    id      INTEGER NOT NULL AUTO_INCREMENT,
+    name    VARCHAR(255) NOT NULL,
+    suburb  VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -36,9 +37,9 @@ CREATE TABLE IF NOT EXISTS services (
 );
 
 CREATE TABLE IF NOT EXISTS businesses (
-    id          INTEGER NOT NULL AUTO_INCREMENT,
-    name        VARCHAR(255) NOT NULL,
-    address     VARCHAR(255) NOT NULL,
+    id       INTEGER NOT NULL AUTO_INCREMENT,
+    name     VARCHAR(255) NOT NULL,
+    address  VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     PRIMARY KEY (id)
 );
@@ -68,6 +69,13 @@ CREATE TABLE IF NOT EXISTS australia_postcode (
     PRIMARY KEY (id)
 );
 
+INSERT INTO users(name, email) VALUES
+('Foo', 'foo@gmail.com'),
+('Bar', 'bar@gmail.com'),
+('Demo', 'demo@gmail.com'),
+('Test', 'test@gmail.com'),
+('Temp', 'temp@gmail.com');
+
 INSERT INTO categories(name) VALUES
 ('Food & Drink'),
 ('Events & Activities'),
@@ -78,7 +86,52 @@ INSERT INTO machines(name, suburb, address) VALUES
 ('Machine 1', 'SYDNEY NSW 2000, AUSTRALIA', '123 PITT STREET'),
 ('Machine 2', 'SYDNEY NSW 2000, AUSTRALIA', '100 MARKET ST'),
 ('Machine 3', 'SYDNEY NSW 2000, AUSTRALIA', '680 GEORGE ST'),
-('Machine 4', 'PARRAMATTA NSW 2150, AUSTRALIA', '9 WENTWORTH STREET');
+('Machine 4', 'PARRAMATTA NSW 2150, AUSTRALIA', '9 WENTWORTH STREET'),
+('Machine 4', 'BELMORE NSW 2192, AUSTRALIA', '2 YANGOORA ROAD'),
+('Machine 5', 'ASHBURY NSW 2193, AUSTRALIA', '31 WHITFIELD AVENUE'),
+('Machine 6', 'CANTERBURY NSW 2193, AUSTRALIA', '27 HOWARD ST'),
+('Machine 7', 'HURLSTONE PARK NSW 2195, AUSTRALIA', '16 DUNTROON ST'),
+('Machine 8', 'CAMPSIE NSW 2193, AUSTRALIA', '24 OSWALD STREET'),
+('Machine 9', 'LAKEMBA NSW 2195, AUSTRALIA', '18 BROWNING AVENUE'),
+('Machine 10', 'WILLEY PARK NSW 2195, AUSTRALIA', '24 RENOWN STREET'),
+('Machine 11', 'PUNCHBOWL NSW 2196, AUSTRALIA', '6 LAVENDER AVE'),
+('Machine 12', 'ROSELANDS NSW 2192, AUSTRALIA', '818 CANTERBURY RD'),
+('Machine 13', 'BASS HILL NSW 2197, AUSTRALIA', '67 FARREL ROAD '),
+('Machine 15', 'YAGOONA NSW 2199, AUSTRALIA', '105 DUTTON ST'),
+('Machine 16', 'BANKSTOWN NSW 2200, AUSTRALIA', '176 SOUTH TERRACE'),
+('Machine 17', 'DULWICH HILL NSW 2203, AUSTRALIA', '27 LEWISHAM STREET'),
+('Machine 18', 'MARRICKVILLE NSW 2204, AUSTRALIA', '2 MURRAY ST'),
+('Machine 19', 'ARNCLIFFE NSW 2205, AUSTRALIA', 'BONAR ST'),
+('Machine 20', 'CLEMTON PARK NSW 2206, AUSTRALIA', '60 Charlotte Sreet'),
+('Machine 21', 'BARDWELL PARK NSW 2207, AUSTRALIA', '7 May Street'),
+('Machine 22', 'KINGSGROVE NSW 2208, AUSTRALIA', '3 St Albans Road'),
+('Machine 23', 'NARWEE NSW 2209, AUSTRALIA', '11 Parry Avenue'),
+('Machine 24', 'LUGARNO NSW 2210, AUSTRALIA', '12 Grandview Crescent'),
+('Machine 25', 'PEAKHURST NSW 2210, AUSTRALIA', '760 Forest Road'),
+('Machine 26', 'LUGARNO NSW 2210, AUSTRALIA', '17 Banksia Place'),
+('Machine 27', 'RIVERWOOD NSW 2210, AUSTRALIA', '49 ALVERSTONE Street'),
+('Machine 28', 'PADSTOW NSW 2211, AUSTRALIA', '45a Astley Avenue'),
+('Machine 29', 'REVESBY NSW 2212, AUSTRALIA', 'Marco Avenue, Revesby'),
+('Machine 30', 'REVESBY HEIGHT NSW 2212, AUSTRALIA', '3 Rowell Street'),
+('Machine 31', 'HURLSTONE PARK NSW 2195, AUSTRALIA', '38 Kilbride Street'),
+('Machine 32', 'CAMPSIE NSW 2193, AUSTRALIA', '60 Charlotte Street'),
+('Machine 33', 'LAKEMBA NSW 2195, AUSTRALIA', '52 Benaroon Road'),
+('Machine 34', 'WILLEY PARK NSW 2195, AUSTRALIA', '15 Samuel Street'),
+('Machine 35', 'PUNCHBOWL NSW 2196, AUSTRALIA', '48 LANCASTER Avenue'),
+('Machine 36', 'ROSELANDS NSW 2192, AUSTRALIA', '41 Phillips St'),
+('Machine 37', 'BASS HILL NSW 2197, AUSTRALIA', '23 Rixon St'),
+('Machine 39', 'YAGOONA NSW 2199, AUSTRALIA', '124 Dutton Street'),
+('Machine 40', 'BANKSTOWN NSW 2200, AUSTRALIA', '43 Northam Avenue'),
+('Machine 41', 'DULWICH HILL NSW 2203, AUSTRALIA', '1 Williams Parade'),
+('Machine 42', 'MARRICKVILLE NSW 2204, AUSTRALIA', '8 Church Street'),
+('Machine 43', 'ARNCLIFFE NSW 2205, AUSTRALIA', '9-11 Wollongong Road'),
+('Machine 44', 'CLEMTON PARK NSW 2206, AUSTRALIA', '60 Charlotte Street'),
+('Machine 45', 'BARDWELL PARK NSW 2207, AUSTRALIA', '46 Stotts Ave'),
+('Machine 46', 'KINGSGROVE NSW 2208, AUSTRALIA', '324 William Street'),
+('Machine 47', 'NARWEE NSW 2209, AUSTRALIA', '85 Welfare Avenue'),
+('Machine 48', 'LUGARNO NSW 2210, AUSTRALIA', '87 Woodlands Avenue'),
+('Machine 49', 'NARWEE NSW 2209, AUSTRALIA', '11 Grove Ave'),
+('Machine 50', 'LUGARNO NSW 2210, AUSTRALIA', '37 Grandview Crescent');
 
 INSERT INTO services(machine_id, category_id) VALUES
 (1, 1), -- m1, c1

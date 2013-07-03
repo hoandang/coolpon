@@ -4,31 +4,63 @@
     <title>CoolPon</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="public/app/style.css" rel="stylesheet" />
+    <link href="public/app/css/flat-ui.css" rel="stylesheet" />
+    <link href="public/app/css/style.css" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
-        <div id="logo">
-            <h1><a href="#">Coolpon</a></h1>
-        </div>
-        <ul class="span12" id="navigator">
-            <li><a href="#">Search</a></li>
-            <li><a href="#">Subscribe</a></li>
-        </ul>
         <div class="page"></div>
     </div>
 
     <script type="text/template" id="home">
-        <form id="form-search" class="form-search">
-            <input type="text" id="post_code" name="post_code" class="input-xxlarge" placeholder="Enter Post Code" />
-            <button class="btn" type="submit">
-                <i class="icon-search"></i>
+        <h1 id="logo" class="center">
+            <a href="#"><img width="470px" height="185px" src="https://s3.amazonaws.com/hoan.photo.bucket/coolpon-assests/logo.jpg"/></a>
+        </h1>
+        <form id="homepage-form-search" class="form-search home-page-form-search" autocomplete="off">
+            <p><input type="text" id="query" class="input-custom" placeholder="Enter Location or Post Code" /></p>
+            <button class="btn btn-warning btn-custom" type="submit">
+                <i class="icon-white icon-search"></i>
                 <span>Search</span>
             </button>
         </form>
         <h3 class="error center"></h3>
-        <ul id="searched-machines" class="pull-left"></ul>
-        <div id="map-canvas"></div>
+    </script>
+
+    <!-- SEARCHED MACHINES -->
+    <script type="text/template" id="searched-machines">
+        <div class="header">
+            <a class="logo" href="#"><img width="180px" height="40px" src="https://s3.amazonaws.com/hoan.photo.bucket/coolpon-assests/logo.jpg"/></a>
+            <form id="custom-form-search" class="form-search custom-form-search" autocomplete="off">
+                <input type="text" id="query" class="" placeholder="Enter Location or Post Code" />
+                <button class="btn btn-warning btn-custom" type="submit">
+                    <i class="icon-white icon-search"></i>
+                    <span>Search</span>
+                </button>
+            </form>
+        </div>
+        <div class="clearfix"></div>
+        <hr/>
+        <ul class="span12" id="navigator">
+            <% _.each(categories, function(category) { %>
+                <li><a href="#"><%=category.get('name')%></a></li>
+            <% }); %>
+        </ul>
+        <div class="row">
+            <ul class="machine-list">
+                <% _.each(searched_machines, function(searched_machine) { %>
+                <li>
+                    <h4><a href="#"><%=searched_machine.get('name')%></a></h4>
+                    <p><%=searched_machine.get('address')%>, <%=searched_machine.get('suburb')%></p>
+                    <p>
+                        <% _.each(searched_machine.get('categories'), function(category) { %>
+                        <span class="label label-warning"><%=category.name%></span>
+                        <% }); %>
+                    </p>
+                </li>
+                <% }); %>
+            </ul>
+            <div id="map-canvas"></div>
+        </div>
     </script>
 
     <script type="text/template" id="coupons">
@@ -67,11 +99,15 @@
     <hr/>
     </script>
 
+    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyCDYr8ddbtZccZkXWP-GTNrTy8uWCprUZk&sensor=false"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
-    <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyCDYr8ddbtZccZkXWP-GTNrTy8uWCprUZk&sensor=false"></script>
-    <script src="public/lib/utility.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="public/app/views/home_view.js"></script>
+    <script src="public/app/views/machines_view.js"></script>
     <script src="public/app/app.js"></script>
+    <script src="public/app/router.js"></script>
 </body>
 </html>

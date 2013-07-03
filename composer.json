@@ -1,6 +1,7 @@
 {
     "require": {
         "slim/slim": "2.*",
-        "codeguy/upload": "*"
+        "codeguy/upload": "*",
+        "raveren/kint": "dev-master"
     }
 }

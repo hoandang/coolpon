@@ -15,7 +15,7 @@ $app->config(array(
 
 // GET home page from template
 $app->get('/', function() use ($app) {
-    $app->render('app/app.html');
+    $app->render('app/index.html');
 });
 
 // GET admin page from template
@@ -186,30 +186,78 @@ $app->get('/locations/search', function() use ($app) {
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode(R::exportAll($locations));
         }
-        else
-            response_json_error($app, 404, 'Invalid location and post code');
+        else response_json_error($app, 404, 'Invalid location and post code');
     }
-    else
-        response_json_error($app, 411, 'Ihe query is required at least 3 characters');
+    else response_json_error($app, 411, 'Ihe query is required at least 3 characters');
+});
+
+// GET MACHINE LOCATION
+$app->get('/machines/search', function() use ($app) {
+    if (strlen($app->request()->get('q')) >= 3)
+    {
+        $query = $app->request()->get('q');
+        $uncategorised_machines = R::find('machines', 'suburb REGEXP ?', array($query));
+        $machines = [];
+        if (sizeof($uncategorised_machines) > 0)
+        {
+            foreach ($uncategorised_machines as $uncategorised_machine)
+            {
+                $sql = 'SELECT c.id, c.name FROM machines m '.
+                    'JOIN services s ON s.machine_id = m.id '.
+                    'JOIN categories c ON s.category_id = c.id '.
+                    'WHERE m.id = '.$uncategorised_machine->id;
+
+                $records = R::getAll($sql);
+                $categories = R::convertToBeans('categories', $records);
+
+                $machine = R::dispense('machine');
+
+                $machine->id         = $uncategorised_machine->id;
+                $machine->name       = $uncategorised_machine->name;
+                $machine->suburb     = $uncategorised_machine->suburb;
+                $machine->address    = $uncategorised_machine->address;
+                $machine->categories = $categories;
+
+                array_push($machines, $machine);
+            }
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($machines));
+        }
+        else 
+            response_json_error($app, 404, 'Machine Not Found');
+    }
+    else 
+        response_json_error($app, 411, 'The query is required at least 3 characters');
 });
 
 // GET MACHINES
 $app->get('/machines', function() use ($app) {
     try 
     {
-        $post_code = $app->request()->get('post_code');
-        if ($post_code)
+        $uncategorised_machines = R::findAll('machines');
+        $machines = [];
+        foreach ($uncategorised_machines as $uncategorised_machine)
         {
-            $machines = R::find('machines', 'post_code=?', array($post_code));
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode(R::exportAll($machines));
+            $sql = 'SELECT c.id, c.name FROM machines m '.
+                'JOIN services s ON s.machine_id = m.id '.
+                'JOIN categories c ON s.category_id = c.id '.
+                'WHERE m.id = '.$uncategorised_machine->id;
+
+            $records = R::getAll($sql);
+            $categories = R::convertToBeans('categories', $records);
+
+            $machine = R::dispense('machine');
+
+            $machine->id         = $uncategorised_machine->id;
+            $machine->name       = $uncategorised_machine->name;
+            $machine->suburb     = $uncategorised_machine->suburb;
+            $machine->address    = $uncategorised_machine->address;
+            $machine->categories = $categories;
+
+            array_push($machines, $machine);
         }
-        else
-        {
-            $machines = R::findAll('machines');
-            $app->response()->header('Content-Type', 'application/json');
-            echo json_encode(R::exportAll($machines));
-        }
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($machines));
     } 
     catch (Exception $e)
     {
