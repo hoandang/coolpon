@@ -16,7 +16,7 @@
             <ul>
                 <li><strong><a href="#">Contact Us</a></strong></li>
                 <li><strong><a href="#">About Us</a></strong></li>
-                <li><strong><a href="#">Subscribe</a></strong></li>
+                <li><strong><a class="subscribe" href="#myModal" data-toggle="modal">Join Newsletter</a></strong></li>
             </ul>
         </div>
     </div>
@@ -142,10 +142,9 @@
     <br/><br/>
     <h3><%=coupon.name%> - <span class="alert-error">Expired Date: <%=coupon.expired_date%></span></h3>
     <div class="share-section">
-        <div id="fb-root"></div>
         <fb:like send="false" layout="button_count" width="450" show_faces="true"></fb:like>
         <a href="https://twitter.com/share" class="twitter-share-button" data-via="twitterapi" data-lang="en">Tweet</a>
-        <wb:follow-button uid="1728266820" type="red_1" width="67" height="24" ></wb:follow-button>
+        <wb:follow-button uid="3511000332" type="red_4" width="67" height="24" ></wb:follow-button>
     </div> 
     <hr/>
     <div class="intro-section">
@@ -222,5 +221,63 @@
     <script src="public/app/views/coupon_detail_view.js"></script>
     <script src="public/app/app.js"></script>
     <script src="public/app/router.js"></script>
+
+    <!-- Subscribe Modal -->
+    <form id="subscribe-form">
+        <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                <h3 id="myModalLabel">Join Newsletter</h3>
+            </div>
+            <div class="modal-body">
+                <input type="text" name="name" id="name" placeholder="Enter Name"/>
+                <input type="text" name="email" id="email" placeholder="Enter Email"/>
+                <h5 class="text-error"></h5>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                <button type="submit" id="subscribe-btn" class="btn btn-primary">Subscribe</button>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        $('.subscribe').click(function() {
+            $('#subscribe-form :text').val('');
+            $('#subscribe-form .text-error').html('');
+            $('#name').show();
+            $('#email').show();
+            $('#subscribe-btn').show();
+        });
+
+        $('#subscribe-form').submit(function(ev) {
+            var $this = $(this);
+            var name = $("#name").val();
+            var email = $("#email").val();
+
+            if (name === '' || email === '')
+                $this.find('.text-error').html('Please enter name and email');
+            else
+            {
+                $.ajax({
+                    type: "post",
+                    url: '/users',
+                    data: { name: name, email: email }, 
+                    success: function(data) {
+                        if (data !== 'Subscribed')
+                            $this.find('.text-error').html(data);
+                        else
+                        { 
+                            $('#name').hide();
+                            $('#email').hide();
+                            $('#subscribe-btn').hide();
+                            $this.find('.text-error').html(data);
+                        }
+                    }
+                });
+            }
+            return false;
+        });
+    </script>
 </body>
 </html>

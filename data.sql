@@ -2,10 +2,15 @@ DROP DATABASE coolpon;
 CREATE DATABASE IF NOT EXISTS coolpon;
 USE coolpon;
 
+CREATE TABLE IF NOT EXISTS admin (
+    username  VARCHAR(20) NOT NULL,
+    password VARCHAR(20) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id    INTEGER NOT NULL AUTO_INCREMENT,
     name  VARCHAR(20) NOT NULL,
-    email VARCHAR(200) NOT NULL,
+    email VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -70,6 +75,8 @@ CREATE TABLE IF NOT EXISTS australia_postcode (
     state    VARCHAR(3) NOT NULL,
     PRIMARY KEY (id)
 );
+
+INSERT INTO admin VALUES('admin', 'admin');
 
 INSERT INTO users(name, email) VALUES
 ('Foo', 'foo@gmail.com'),

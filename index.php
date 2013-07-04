@@ -730,6 +730,88 @@ $app->delete('/businesses/:id', function($id) use ($app) {
     }
 });
 
+// GET USERS
+$app->get('/users', function() use ($app) {
+    try
+    {
+        $users = R::findAll('users');
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($users));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// GET USER
+$app->get('/users/:id', function($id) use ($app) {
+    try
+    {
+        $users = R::findOne('users', 'id=?', array($id));
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($users));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// POST USERS
+$app->post('/users', function() use ($app) {
+    $name  = $_POST['name'];
+    $email = $_POST['email'];
+
+    if (R::findOne('users', 'email = ?', array($email)))
+        echo 'You already subscribed';
+    else
+    {
+        $user = R::dispense('users');
+        $user->name  = $name;
+        $user->email = $email;
+
+        $id = R::store($user);
+        echo 'Subscribed';
+    }
+});
+// PUT USERS
+$app->put('/users/:id', function($id) use ($app) {
+    try
+    {
+        $request = $app->request();
+        $body    = $request->getBody();
+        $input   = json_decode($body);
+
+        $user = R::findOne('users', 'id=?', array($id));
+
+        $user->name  = $input->name;
+        $user->email = $input->email;
+
+        $id = R::store($user);
+
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($user));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+// DELETE USER
+$app->delete('/users/:id', function($id) use ($app) {
+    try
+    {
+        $user = R::findOne('users', 'id=?', array($id));
+        R::trash($user);
+        $app->response()->status(204);
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
 // Run awesome app
 $app->run();
 
