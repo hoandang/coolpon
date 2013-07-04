@@ -10,6 +10,7 @@
     <link href="public/admin/css/bootstrap-fileupload.min.css" rel="stylesheet" />
     <link href="public/admin/css/token-input.css" rel="stylesheet" />
     <link href="public/admin/css/token-input-facebook.css" rel="stylesheet" />
+    <link href="public/admin/css/flat-ui.css" rel="stylesheet" />
     <link href="public/admin/css/style.css" rel="stylesheet" />
     <script src="//maps.googleapis.com/maps/api/js?key=AIzaSyCDYr8ddbtZccZkXWP-GTNrTy8uWCprUZk&sensor=false"></script>
 </head>
@@ -35,10 +36,10 @@
     </a>
     <br /><br />
     <ul id="category-list">
-        <% _.each(categories, function(category) { %>
+        <% _.each(categories.reverse(), function(category) { %>
         <li>
             <strong><%=category.get('name')%></strong>
-            <a href="#/categories/<%=category.id%>/edit" class="btn btn-warning">Edit</a>
+            <a href="#/categories/<%=category.id%>/edit" class="btn btn-warning btn-custom">Edit</a>
         </li>
         <% }); %>
     </ul>
@@ -79,14 +80,21 @@
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Categories</th>
                 <th>Location</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-            <% _.each(machines, function(machine) { %>
+            <% _.each(machines.reverse(), function(machine) { %>
             <tr>
                 <td><%= machine.get('name') %></td>
+                <td>
+                <% var last_element = _.last(machine.get('categories')); %>
+                <% _.each(machine.get('categories').reverse(), function(category) { %>
+                    <span><%=category.name%> <%=_.isEqual(last_element, category) ? '.' : '-' %></span>
+                <% }); %>
+                </td>
                 <td><%= machine.get('address') %>, <%=machine.get('suburb')%></td>
                 <td class="operation">
                     <a href="#/machines/<%= machine.id %>" class="btn">View</a>
@@ -148,7 +156,7 @@
             <select name="business_id">
                 <option value="">Pick a business...</option>
                 <% var business_id = coupon ? coupon.business_id : '' %>
-                <% _.each(businesses, function(business) { %>
+                <% _.each(businesses.reverse(), function(business) { %>
                     <% if (business_id == business.id) { %>
                         <option selected="selected" value="<%= business.id %>"><%= business.get('name') %></option>
                     <% } else { %>
@@ -216,7 +224,7 @@
             </tr>
         </thead>
         <tbody>
-            <% _.each(coupons, function(coupon) { %>
+            <% _.each(coupons.reverse(), function(coupon) { %>
             <tr>
                 <td class="name"><%= coupon.get('name') %></td>
                 <td class="thumb"><img width="150px" height="70px" src="<%= coupon.get('image') %>" /></td>
@@ -245,7 +253,7 @@
             <select name="machine_id">
                 <option value="">Pick a machine...</option>
                 <% var machine_id = coupon ? coupon.machine_id : '' %>
-                <% _.each(machines, function(machine) { %>
+                <% _.each(machines.reverse(), function(machine) { %>
                     <% if (machine_id == machine.id) { %>
                         <option selected="selected" value="<%= machine.id %>"><%= machine.get('name') %></option>
                     <% } else { %>
@@ -256,7 +264,7 @@
             <select name="business_id">
                 <option value="">Pick a business...</option>
                 <% var business_id = coupon ? coupon.business_id : '' %>
-                <% _.each(businesses, function(business) { %>
+                <% _.each(businesses.reverse(), function(business) { %>
                     <% if (business_id == business.id) { %>
                         <option selected="selected" value="<%= business.id %>"><%= business.get('name') %></option>
                     <% } else { %>
@@ -332,7 +340,7 @@
             </tr>
         </thead>
         <tbody>
-            <% _.each(coupons, function(coupon) { %>
+            <% _.each(coupons.reverse(), function(coupon) { %>
             <tr>
                 <td class="name"><%= coupon.get('name') %></td>
                 <td class="thumb"><img width="150px" height="70px" src="<%= coupon.get('image') %>" /></td>
@@ -364,7 +372,7 @@
             </tr>
         </thead>
         <tbody>
-            <% _.each(businesses, function(business) { %>
+            <% _.each(businesses.reverse(), function(business) { %>
             <tr>
                 <td><%= business.get('name') %></td>
                 <td><%= business.get('address') %></td>

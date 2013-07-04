@@ -54,4 +54,6 @@ var Coupon = Backbone.Model.extend({
 var Business = Backbone.Model.extend({
     urlRoot: '/businesses'
 });
-
+var Category = Backbone.Model.extend({
+    urlRoot: '/categories'
+});

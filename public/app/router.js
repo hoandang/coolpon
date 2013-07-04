@@ -2,19 +2,32 @@
 var Router = Backbone.Router.extend({
     routes: {
         '': 'home',
-        'machines/:machine_id/coupons/:coupon_id' : 'coupon_detail'
+        'machines/:id/location?location=:location': 'machine_detail',
+        'machines/:machine_id/coupons/:coupon_id' : 'coupon_detail',
+        'categories/:id' : 'category_detail'
     }
 });
 
 var router = new Router();
+
+var homeView = new HomeView();
 router.on('route:home', function() {
-    var homeView = new HomeView();
     homeView.render();
 });
 
+var machineDetailView = new MachineDetailView();
+router.on('route:machine_detail', function(id, location) {
+    machineDetailView.render({ id: id, location: location });
+});
+
+var couponDetailView = new CouponDetailView();
 router.on('route:coupon_detail', function(machine_id, coupon_id) {
-    var couponDetailView = new CouponDetailView();
     couponDetailView.render({ machine_id: machine_id, coupon_id: coupon_id });
+});
+
+var categoryDetailView = new CategoryDetailView();
+router.on('route:category_detail', function(id) {
+    categoryDetailView.render({id: id });
 });
 
 Backbone.history.start();

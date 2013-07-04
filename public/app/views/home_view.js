@@ -23,11 +23,14 @@ var HomeView = Backbone.View.extend({
     },
     search_machines: function(ev) {
         var machinesView = new MachinesView();
-        var searchedMachines = new SearchedMachines({query: $('#query').val()});
+        var searchedMachines = new SearchedMachines({query: $('#homepage-form-search input').val()});
         searchedMachines.fetch({
             success: function(searchedMachines) {
                 var machinesView = new MachinesView();
                 machinesView.render({searched_machines: searchedMachines});
+            },
+            error: function() {
+                $('.error').html('Machine Not Found');
             }
         });
         return false;

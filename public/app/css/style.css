@@ -1,5 +1,14 @@
 .container {
 }
+.btn-back {
+    color: #EF2118;
+    text-decoration:none;
+    font-size: 1.1em;
+}
+.btn-back:hover {
+    text-decoration: underline;
+    color: #EF2118;
+}
 .btn-custom {
     background-color: #FFA500 !important;
     width: 120px !important;
@@ -22,14 +31,14 @@
     color: #C0392B !important;
 }
 
-#coupons-list li {
+.coupons-list li {
     margin: 10px 25px 30px 10px;
     width: 260px;
-    height: 180px;
-    float: left;
+    height: 240px;
 }
 #searched-machines-menu {
     list-style-type: none;
+    margin: 0;
 }
 #searched-machines-menu li {
     float: left; 
@@ -101,4 +110,16 @@
 #navigator li a:hover {
     cursor: pointer;
     background-color: #DC9930;
+}
+
+.intro-section .business-section {
+    margin-left: 30px;
+}
+.footer ul {
+    list-style-type: none;
+    margin-bottom: 20px;
+}
+.footer ul li {
+    display: inline;
+    margin: 0 20px;
 }

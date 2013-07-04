@@ -23,10 +23,10 @@ var EditCouponByMachineView = Backbone.View.extend({
         }
         else
         {
-            $.when(businesses.fetch(), current_machine.fetch()).done(function() {
+            $.when(businesses.fetch(), that.current_machine.fetch()).done(function() {
                 var template = _.template(
                     $('#edit-coupon-by-machine-template').html(), {
-                        current_machine: current_machine.attributes[0],
+                        current_machine: that.current_machine.attributes[0],
                         businesses: businesses.models,
                         coupon: null
                     });

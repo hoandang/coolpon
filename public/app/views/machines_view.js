@@ -12,7 +12,17 @@ var MachinesView = Backbone.View.extend({
             });
             that.$el.html(template);
 
-            autocomplete();
+            $('#custom-form-search input').typeahead({ 
+                minLength: 3,
+                source: function(query, process) {
+                    return $.get('/machines/search', {q: query}, function(result) {
+                        var resultList = result.map(function (item) {
+                            return item.suburb;
+                        });
+                        return process($.unique(resultList));
+                    });
+                }
+            });
             load_map(locations(searched_machines.models));
         });
     },
@@ -21,7 +31,7 @@ var MachinesView = Backbone.View.extend({
     },
     search_machines: function(ev) {
         var machinesView = new MachinesView();
-        var searchedMachines = new SearchedMachines({query: $('#query').val()});
+        var searchedMachines = new SearchedMachines({query: $('#custom-form-search input').val()});
         searchedMachines.fetch({
             success: function(searchedMachines) {
                 var machinesView = new MachinesView();
@@ -75,20 +85,4 @@ function load_map(locations)
                 console.log('Geocode was not successful for the following reason ' + status);
         });
     }
-}
-
-function autocomplete()
-{
-    // Autocomplete
-    $('#custom-form-search input').typeahead({ 
-        minLength: 3,
-        source: function(query, process) {
-            return $.get('/machines/search', {q: query}, function(result) {
-                var resultList = result.map(function (item) {
-                    return item.suburb;
-                });
-                return process($.unique(resultList));
-            });
-        }
-    });
 }

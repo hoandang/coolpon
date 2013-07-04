@@ -1,6 +1,9 @@
 ul {
     list-style-type: none;
 }
+.btn-custom {
+    width: 120px !important;
+}
 .table td
 {
   vertical-align: middle;
@@ -94,6 +97,7 @@ p#machine-address input {
 }
 #category-list li{
     clear: both;
+    margin-bottom: 10px;
 }
 #category-list li strong{
     float: left;

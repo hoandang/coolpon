@@ -72,11 +72,44 @@ $app->get('/machines/:id/categories', function($id) use ($app) {
 
 // GET CATEGORIES/:ID
 $app->get('/categories/:id', function($id) use ($app) {
+    // category
     try 
     {
-        $category = r::findOne('categories', 'id=?', array($id));
+        $raw_category = R::findOne('categories', 'id=?', array($id));
+
+        $sql = 'SELECT DISTINCT m.* FROM categories c '.
+               'JOIN services s ON s.category_id = c.id '.
+               'JOIN machines m ON s.machine_id = m.id '.
+               'WHERE c.id = '.$id;
+        $records = R::getAll($sql);
+        $bean_machines = R::convertToBeans('machines', $records);
+
+        $machines = [];
+
+        foreach ($bean_machines as $bean_machine)
+        {
+            $sql = 'SELECT c.* FROM coupons c '.
+                   'JOIN machines m on c.machine_id = m.id '.
+                   'WHERE m.id = '.$bean_machine->id;
+            $records = R::getAll($sql);
+            $bean_coupons = R::convertToBeans('coupons', $records);
+
+            $machine = R::dispense('machine');
+            $machine->id      = $bean_machine->id;
+            $machine->name    = $bean_machine->name;
+            $machine->suburb  = $bean_machine->suburb;
+            $machine->address = $bean_machine->address;
+            $machine->coupons = $bean_coupons;
+            array_push($machines, $machine);
+        }
+
+        $category = R::dispense('category');
+        $category->id = $id;
+        $category->name = $raw_category->name;
+        $category->machines = $machines;
+
         $app->response()->header('content-type', 'application/json');
-        echo json_encode(r::exportall($category));
+        echo json_encode(R::exportall($category));
     } 
     catch (exception $e)
     {
@@ -261,20 +294,37 @@ $app->get('/machines', function() use ($app) {
     } 
     catch (Exception $e)
     {
-        response_json_error($app, 501, $e->getMessage());
+        response_json_error($app, 400, $e->getMessage());
     }
 });
-// GET MACHINE/:ID
+// GET MACHINE
 $app->get('/machines/:id', function($id) use ($app) {
     try 
     {
-        $machine = r::findOne('machines', 'id=?', array($id));
+        $uncategorised_machine = R::findOne('machines', 'id=?', array($id));
+
+        $sql = 'SELECT c.id, c.name FROM machines m '.
+            'JOIN services s ON s.machine_id = m.id '.
+            'JOIN categories c ON s.category_id = c.id '.
+            'WHERE m.id = '.$id;
+
+        $records = R::getAll($sql);
+        $categories = R::convertToBeans('categories', $records);
+
+        $machine = R::dispense('machine');
+
+        $machine->id         = $id;
+        $machine->name       = $uncategorised_machine->name;
+        $machine->suburb     = $uncategorised_machine->suburb;
+        $machine->address    = $uncategorised_machine->address;
+        $machine->categories = $categories;
+
         $app->response()->header('content-type', 'application/json');
-        echo json_encode(r::exportall($machine));
+        echo json_encode(R::exportall($machine));
     } 
     catch (exception $e)
     {
-        response_json_error($app, 501, $e->getmessage());
+        response_json_error($app, 400, $e->getmessage());
     }
 });
 
@@ -289,7 +339,7 @@ $app->get('/machines/:id/coupons', function($id) use ($app) {
     } 
     catch (Exception $e)
     {
-        response_json_error($app, 501, $e->getMessage());
+        response_json_error($app, 400, $e->getMessage());
     }
 });
 
@@ -423,7 +473,8 @@ $app->get('/coupons', function() use ($app) {
     {
         $sql= 'SELECT c.*, '.
               'm.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
-              'b.name "business_name", b.address "business_address", b.description "business_desc "'.
+              'b.name "business_name", b.address "business_address", b.phone_number, b.email, '.
+              'b.description "business_desc "'.
               'FROM coupons c '.
               'JOIN machines m ON c.machine_id = m.id '.
               'JOIN businesses b ON c.business_id = b.id';
@@ -444,7 +495,8 @@ $app->get('/coupons/:id', function($id) use ($app) {
     {
         $sql= 'SELECT c.*, '.
               'm.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
-              'b.name "business_name", b.address "business_address", b.description "business_desc "'.
+              'b.name "business_name", b.address "business_address", b.phone_number "business_phone_number", b.email "business_email", '.
+              'b.description "business_desc "'.
               'FROM coupons c '.
               'JOIN machines m ON c.machine_id = m.id '.
               'JOIN businesses b ON c.business_id = b.id '.

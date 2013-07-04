@@ -40,6 +40,8 @@ CREATE TABLE IF NOT EXISTS businesses (
     id       INTEGER NOT NULL AUTO_INCREMENT,
     name     VARCHAR(255) NOT NULL,
     address  VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(100) NOT NULL,
+    email varchar(100) NOT NULL,
     description TEXT NOT NULL,
     PRIMARY KEY (id)
 );
@@ -145,12 +147,12 @@ INSERT INTO services(machine_id, category_id) VALUES
 (4, 2), -- m4, c2
 (4, 3); -- m4, c3
 
-INSERT INTO businesses(name, address, description) VALUES
-('Business 1', '12 ABC Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
-('Business 2', '34 OIR Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
-('Business 3', '12 UTR Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
-('Business 4', '12 OKKM Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
-('Business 5', '12 GFDM Street NSW, Sydney', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere');
+INSERT INTO businesses(name, address, phone_number, email, description) VALUES
+('Business 1', '12 ABC Street NSW, Sydney', '01234343', 'foo@gmail.com', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
+('Business 2', '34 OIR Street NSW, Sydney', '34542334', 'bar@gmail.com', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
+('Business 3', '12 UTR Street NSW, Sydney', '34542334', 'bar@gmail.com', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
+('Business 4', '12 OKKM Street NSW, Sydney','34542334', 'bar@gmail.com',  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
+('Business 5', '12 GFDM Street NSW, Sydney','34542334', 'bar@gmail.com',  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere');
 
 INSERT INTO coupons(machine_id, business_id, name, expired_date, description, image) VALUES
 (1, 1, 'Coupon 1', '12/09/2013', 'This is coupon 1', 'assets/1.jpg'),
