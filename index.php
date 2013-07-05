@@ -819,21 +819,6 @@ $app->post('/email', function() use ($app) {
     $subject    = $_POST['subject'];
     $content    = $_POST['content'];
 
-
-    //try 
-    //{
-        //$email= new Email();
-        //$email->setTo($to_email);
-        //$email->setFrom('11458724@student.uts.edu.au');
-        //$email->setSubject($subject);
-        //$email->setText($content);
-        //$email->send();
-    //}
-    //catch (Exception $e) 
-    //{
-        //echo $e->getMessage();
-    //}
-
     $mail = new PHPMailer();
     $mail->IsSMTP();
 

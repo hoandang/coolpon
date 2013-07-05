@@ -16,6 +16,7 @@ var EmailView = Backbone.View.extend({
                     }).join(', ');
                     template = _.template($('#email-view').html(), { to_email: user_emails});
                     that.$el.html(template);
+                    $('#email_body').wysihtml5();
                 }
             });
         }
@@ -25,9 +26,8 @@ var EmailView = Backbone.View.extend({
             that.email = options.email;
             template = _.template($('#email-view').html(), { to_email: options.email});
             that.$el.html(template);
+            $('#email_body').wysihtml5();
         }
-
-        $('#email_body').wysihtml5();
     },
     events: {
         'submit #email-form': 'send_email'
