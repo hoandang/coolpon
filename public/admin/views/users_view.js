@@ -1,4 +1,4 @@
-// MACHINE LIST
+// USER VIEW LIST
 var UsersView = Backbone.View.extend({
     el: '.page',
     render: function() {

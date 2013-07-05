@@ -23,7 +23,8 @@ var Router = Backbone.Router.extend ({
 
         'users': 'viewUsers',
 
-        'email/to?email=:email': 'email_view'
+        'email/to?email=:email': 'email_view',
+        'email/to?email=all': 'email_view'
     }
 });
 

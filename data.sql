@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS admin (
 
 CREATE TABLE IF NOT EXISTS users (
     id    INTEGER NOT NULL AUTO_INCREMENT,
-    name  VARCHAR(20) NOT NULL,
-    email VARCHAR(20) NOT NULL,
+    name  VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS australia_postcode (
 INSERT INTO admin VALUES('admin', 'admin');
 
 INSERT INTO users(name, email) VALUES
-('Foo', 'foo@gmail.com'),
+('Foo', 'danghuyhoan@gmail.com'),
 ('Bar', 'bar@gmail.com'),
 ('Demo', 'demo@gmail.com'),
 ('Test', 'test@gmail.com'),

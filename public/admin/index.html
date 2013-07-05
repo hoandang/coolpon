@@ -423,10 +423,10 @@
     <script type="text/template" id="users">
     <h3><%=_.size(users)%> Subsciptions</h3>
     <br/>
-    <!--<a href="#" class="btn btn-info">
+    <a id="send-all" href="#/email/to?email=all" class="btn btn-info">
         <i class="icon-envelope icon-white"></i>
         <span>Send All</span>
-    </a>-->
+    </a>
     <br/><br/>
     <table class="table table-bordered table-hover">
         <thead>
@@ -451,6 +451,7 @@
     </table>
     </script>
 
+    <!-- EMAIL FROM VIEW -->
     <script type="text/template" id="email-view">
     <a href="#/users">&#8592; Back</a>
     <h3>Email Form</h3>

@@ -819,8 +819,26 @@ $app->post('/email', function() use ($app) {
     $subject    = $_POST['subject'];
     $content    = $_POST['content'];
 
+
+    //try 
+    //{
+        //$email= new Email();
+        //$email->setTo($to_email);
+        //$email->setFrom('11458724@student.uts.edu.au');
+        //$email->setSubject($subject);
+        //$email->setText($content);
+        //$email->send();
+    //}
+    //catch (Exception $e) 
+    //{
+        //echo $e->getMessage();
+    //}
+
     $mail = new PHPMailer();
     $mail->IsSMTP();
+
+    $mail->SMTPDebug  = 2;
+    $mail->Debugoutput = 'html';
 
     $mail->Host = 'smtp.gmail.com';
     $mail->Port = 587;
@@ -831,19 +849,34 @@ $app->post('/email', function() use ($app) {
 
     //Set who the message is to be sent from
     $mail->SetFrom($from_email, 'First Last');
-    //Set who the message is to be sent to
-    $mail->AddAddress($to_email, 'John Doe');
     //Set the subject line
     $mail->Subject = $subject;
 
     // Email Body
     $mail->MsgHTML($content); 
 
-    //Send the message, check for errors
-    if(!$mail->Send()) {
-        echo "Mailer Error: " . $mail->ErrorInfo;
-    } else {
-        echo "Message sent!";
+    //Set who the message is to be sent to
+    if (strcmp(gettype($to_email), 'string') == 0)
+    {
+        $mail->AddAddress($to_email, 'John Doe');
+        //Send the message, check for errors
+        if(!$mail->Send())
+            echo "Mailer Error: " . $mail->ErrorInfo;
+        else
+            echo "Message sent!";
+    }
+    else
+    {
+        foreach ($to_email as $email)
+        {
+            $mail->ClearAddresses();
+            $mail->AddAddress($email, 'John Doe');
+            //Send the message, check for errors
+            if(!$mail->Send())
+                echo "Mailer Error: " . $mail->ErrorInfo;
+            else
+                echo "Message sent!";
+        }
     }
 });
 

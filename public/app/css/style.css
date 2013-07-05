@@ -1,4 +1,5 @@
-.container {
+.container ul {
+    list-style-type: none;
 }
 .btn-back {
     color: #EF2118;
@@ -122,4 +123,7 @@
 .footer ul li {
     display: inline;
     margin: 0 20px;
+}
+.banner img {
+    margin-left: -20px;
 }
