@@ -2,6 +2,7 @@
     "require": {
         "slim/slim": "2.*",
         "codeguy/upload": "*",
-        "raveren/kint": "dev-master"
+        "raveren/kint": "dev-master",
+        "phpmailer/phpmailer": "5.*"
     }
 }

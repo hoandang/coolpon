@@ -5,10 +5,10 @@ var Router = Backbone.Router.extend ({
         'categories/new':      'editCategory',
         'categories/:id/edit': 'editCategory',
 
-        'machines':            'viewMachines',
-        'machines/new':        'editMachine',
-        'machines/:id/edit':   'editMachine',
-        'machines/:id':        'machineDetail',
+        'machines':          'viewMachines',
+        'machines/new':      'editMachine',
+        'machines/:id/edit': 'editMachine',
+        'machines/:id':      'machineDetail',
 
         'machines/:id/coupons/new':          'editCouponByMachine',
         'machines/:m_id/coupons/:c_id/edit': 'editCouponByMachine',
@@ -17,13 +17,29 @@ var Router = Backbone.Router.extend ({
         'businesses/new':      'editBusiness',
         'businesses/:id/edit': 'editBusiness',
 
-        'coupons':             'viewCoupons',
-        'coupons/new':         'editCoupon',
-        'coupons/:id/edit':    'editCoupon'
+        'coupons':          'viewCoupons',
+        'coupons/new':      'editCoupon',
+        'coupons/:id/edit': 'editCoupon',
+
+        'users': 'viewUsers',
+
+        'email/to?email=:email': 'email_view'
     }
 });
 
 var router = new Router();
+
+// EMAIL VIEW
+var emailView = new EmailView();
+router.on('route:email_view', function(email) {
+    emailView.render({ email: email });
+});
+
+// USERS VIEW
+var usersView = new UsersView();
+router.on('route:viewUsers', function() {
+    usersView.render();
+});
 
 // CATEGORY VIEW
 var categoriesView = new CategoriesView();

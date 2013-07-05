@@ -419,6 +419,56 @@
     </form>
     </script>
 
+    <!-- USERS VIEW -->
+    <script type="text/template" id="users">
+    <h3><%=_.size(users)%> Subsciptions</h3>
+    <br/>
+    <!--<a href="#" class="btn btn-info">
+        <i class="icon-envelope icon-white"></i>
+        <span>Send All</span>
+    </a>-->
+    <br/><br/>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th class="name">Name</th>
+                <th class="name">Email</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <% _.each(users.reverse(), function(user) { %>
+            <tr>
+                <td class="name"><%=user.get('name') %></td>
+                <td class="name"><%=user.get('email') %></td>
+                <td class="operation">
+                    <a href="#/email/to?email=<%=user.get('email')%>" 
+                        class="btn btn-warning btn-custom-width btn-email">Send Mail</a>
+                </td>
+            </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    </script>
+
+    <script type="text/template" id="email-view">
+    <a href="#/users">&#8592; Back</a>
+    <h3>Email Form</h3>
+    <br/>
+    <form id="email-form">
+        <p><input type="text" placeholder="From Email" id="from_email"/></p>
+        <p><input type="text" placeholder="To Email" id="to_email" value="<%=to_email%>"/></p>
+        <p><input type="text" placeholder="Subject" id="email_subject" class="span5"/></p>
+        <textarea class="span12" rows="11" id="email_body" 
+            name="email_body" placeholder="Enter Email Content ...">
+        </textarea>
+        <button type="submit" class="btn btn-success btn-custom-width">
+            <i class="icon-envelope icon-white"></i>
+            <span>Send</span>
+        </button>
+    </form>
+    </script>
+
     <script src="public/admin/js/wysihtml5-0.3.0_rc2.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
@@ -428,7 +478,6 @@
     <script src="public/admin/js/bootstrap-wysihtml5-0.0.2.min.js"></script>
     <script src="public/admin/js/bootstrap-fileupload.min.js"></script>
     <script src="public/admin/js/bootstrap-inputmask.min.js"></script>
-    <script src="public/admin/js/bootstrap-typeahead.min.js"></script>
     <script src="public/admin/js/jquery.tokeninput.js"></script>
 
     <script src="public/admin/views/categories_view.js"></script>
@@ -437,6 +486,8 @@
     <script src="public/admin/views/coupons_view.js"></script>
     <script src="public/admin/views/businesses_view.js"></script>
     <script src="public/admin/views/machine_coupons_view.js"></script>
+    <script src="public/admin/views/users_view.js"></script>
+    <script src="public/admin/views/email_view.js"></script>
     <script src="public/admin/views/edit_coupon_by_machine_view.js"></script>
     <script src="public/admin/views/edit_business_view.js"></script>
     <script src="public/admin/views/edit_machine_view.js"></script>
@@ -444,5 +495,6 @@
 
     <script src="public/admin/app.js"></script>
     <script src="public/admin/router.js"></script>
+
 </body>
 </html>

@@ -37,6 +37,11 @@ var Businesses = Backbone.Collection.extend({
 var Coupons = Backbone.Collection.extend({ 
     url: '/coupons'
 });
+
+var Users = Backbone.Collection.extend({ 
+    url: '/users'
+});
+
 var CouponsByMachine = Backbone.Collection.extend({ 
     initialize: function(options) {
         this.id = options.id;
@@ -76,4 +81,7 @@ var Coupon = Backbone.Model.extend({
 });
 var Category = Backbone.Model.extend({
     urlRoot: '/categories'
+});
+var User = Backbone.Model.extend({
+    urlRoot: '/users'
 });

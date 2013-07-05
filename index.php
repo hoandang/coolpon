@@ -812,6 +812,41 @@ $app->delete('/users/:id', function($id) use ($app) {
     }
 });
 
+// EMAIL
+$app->post('/email', function() use ($app) {
+    $from_email = $_POST['from_email'];
+    $to_email   = $_POST['to_email'];
+    $subject    = $_POST['subject'];
+    $content    = $_POST['content'];
+
+    $mail = new PHPMailer();
+    $mail->IsSMTP();
+
+    $mail->Host = 'smtp.gmail.com';
+    $mail->Port = 587;
+    $mail->SMTPSecure = 'tls';
+    $mail->SMTPAuth = true;
+    $mail->Username = "foobar043@gmail.com";
+    $mail->Password = 'testing12345'; // Enter password here
+
+    //Set who the message is to be sent from
+    $mail->SetFrom($from_email, 'First Last');
+    //Set who the message is to be sent to
+    $mail->AddAddress($to_email, 'John Doe');
+    //Set the subject line
+    $mail->Subject = $subject;
+
+    // Email Body
+    $mail->MsgHTML($content); 
+
+    //Send the message, check for errors
+    if(!$mail->Send()) {
+        echo "Mailer Error: " . $mail->ErrorInfo;
+    } else {
+        echo "Message sent!";
+    }
+});
+
 // Run awesome app
 $app->run();
 
