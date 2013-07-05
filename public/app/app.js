@@ -43,6 +43,10 @@ var Categories = Backbone.Collection.extend({
     url: '/categories'
 });
 
+var Banners = Backbone.Collection.extend({
+    url: '/banners'
+});
+
 //---------- MODELS -----------------
 var Machine = Backbone.Model.extend({
     urlRoot: '/machines'

@@ -9,7 +9,6 @@
 </head>
 <body>
     <div id="banner-left" class="span3 fixed">
-        <img width="280px" src="assets/banner.jpg">
     </div>
     <div class="container">
         <div class="page"></div>
@@ -23,6 +22,12 @@
             </ul>
         </div>
     </div>
+    <script type="text/template" id="banners">
+        <% _.each(banners, function(banner) { %>
+            <img width="280px" height="100%" src="<%=banner.get('path')%>"/>
+            <br/><br/>
+        <% }); %>
+    </script>
 
     <script type="text/template" id="home">
         <h1 id="logo" class="center">
@@ -223,6 +228,7 @@
     <script src="public/app/views/machine_detail_view.js"></script>
     <script src="public/app/views/category_detail_view.js"></script>
     <script src="public/app/views/coupon_detail_view.js"></script>
+    <script src="public/app/views/banners_view.js"></script>
     <script src="public/app/app.js"></script>
     <script src="public/app/router.js"></script>
 

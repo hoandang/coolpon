@@ -2,9 +2,19 @@
 var HomeView = Backbone.View.extend({
     el: '.page',
     render: function() {
-        var that = this;
         var template = _.template($('#home').html(), {});
-        that.$el.html(template);
+        this.$el.html(template);
+
+        //var banners = new Banners();
+        //banners.fetch({
+            //success: function(banners) {
+                //var template = _.template($('#banners').html(), {
+                    //banners: banners.models
+                //});
+                //$('body').find('#banner-left').html(template);
+            //}
+        //})
+
         // Autocomplete
         $('#homepage-form-search input').typeahead({ 
             minLength: 3,

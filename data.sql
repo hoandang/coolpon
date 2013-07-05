@@ -87,7 +87,6 @@ INSERT INTO admin VALUES('admin', 'admin');
 INSERT INTO banners(path) VALUES
 ('assets/no-image.jpg'),
 ('assets/no-image.jpg'),
-('assets/no-image.jpg'),
 ('assets/no-image.jpg');
 
 INSERT INTO users(name, email) VALUES
