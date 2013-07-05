@@ -8,10 +8,10 @@
     <link href="public/app/css/style.css" rel="stylesheet" />
 </head>
 <body>
-    <div class="span3 pull-left banner">
-        <!--<img src="assets/banner.jpg">-->
+    <div id="banner-left" class="span3 fixed">
+        <img width="280px" src="assets/banner.jpg">
     </div>
-    <div class="container pull-left">
+    <div class="container">
         <div class="page"></div>
         <hr/>
         <div class="clearfix"></div>
@@ -22,11 +22,6 @@
                 <li><strong><a class="subscribe" href="#subscribe" data-toggle="modal">Join Newsletter</a></strong></li>
             </ul>
         </div>
-    </div>
-    <div class="span3 pull-left">
-        <!--<img src="assets/banner.jpg">-->
-        <!--<br/><br/>-->
-        <!--<img src="assets/banner.jpg">-->
     </div>
 
     <script type="text/template" id="home">
@@ -173,6 +168,7 @@
     <div class="coupon-content"><%=coupon.description%></div>
     </script>
 
+    <!-- CATEGORY DETAIL -->
     <script type="text/template" id="category-detail">
     <div class="header">
         <a class="logo" href="#"><img width="180px" height="40px" src="https://s3.amazonaws.com/hoan.photo.bucket/coolpon-assests/logo.jpg"/></a>

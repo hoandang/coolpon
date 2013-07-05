@@ -24,11 +24,26 @@ var Router = Backbone.Router.extend ({
         'users': 'viewUsers',
 
         'email/to?email=:email': 'email_view',
-        'email/to?email=all': 'email_view'
+        'email/to?email=all': 'email_view',
+
+        'banners': 'viewBanners',
+        'banners/:id/edit': 'editBanner'
     }
 });
 
 var router = new Router();
+
+// BANNER VIEW
+var bannersView = new BannersView();
+router.on('route:viewBanners', function() {
+    bannersView.render();
+});
+
+// EDIT BANNER VIEW
+var editBannerView = new EditBannerView();
+router.on('route:editBanner', function(id) {
+    editBannerView.render({id: id});
+});
 
 // EMAIL VIEW
 var emailView = new EmailView();

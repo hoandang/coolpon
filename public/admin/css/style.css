@@ -1,6 +1,9 @@
 ul {
     list-style-type: none;
 }
+.center {
+    text-align: center;
+}
 .btn-custom {
     width: 120px !important;
 }
@@ -107,4 +110,10 @@ p#machine-address input {
 
 .btn-custom-width {
     width: 100px !important;
+}
+#banner-list {
+    margin: 20px 0 0 0;
+}
+#banner-list li p.center {
+    margin-top: 10px;
 }

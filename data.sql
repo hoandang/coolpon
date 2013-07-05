@@ -7,6 +7,12 @@ CREATE TABLE IF NOT EXISTS admin (
     password VARCHAR(20) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS banners (
+    id    INTEGER NOT NULL AUTO_INCREMENT,
+    path VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS users (
     id    INTEGER NOT NULL AUTO_INCREMENT,
     name  VARCHAR(100) NOT NULL,
@@ -77,6 +83,12 @@ CREATE TABLE IF NOT EXISTS australia_postcode (
 );
 
 INSERT INTO admin VALUES('admin', 'admin');
+
+INSERT INTO banners(path) VALUES
+('assets/no-image.jpg'),
+('assets/no-image.jpg'),
+('assets/no-image.jpg'),
+('assets/no-image.jpg');
 
 INSERT INTO users(name, email) VALUES
 ('Foo', 'danghuyhoan@gmail.com'),

@@ -865,6 +865,92 @@ $app->post('/email', function() use ($app) {
     }
 });
 
+// GET BANNERS
+$app->get('/banners', function() use ($app) {
+    try
+    {
+        $banners = R::findAll('banners');
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($banners));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// GET BANNER
+$app->get('/banners/:id', function($id) use ($app) {
+    try
+    {
+        $banner = R::findOne('banners', 'id=?', array($id));
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($banner));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+
+// POST BANNERS
+$app->post('/banners', function() use ($app) {
+    try 
+    {
+        $storage = new \Upload\Storage\FileSystem('assets');
+        $file = new \Upload\File('image', $storage);
+
+        $new_filename = uniqid();
+        $file->setName($new_filename);
+
+        try 
+        {
+            $file->upload();
+            $file_path = 'assets/'.$file->getNameWithExtension();
+            $banner = R::dispense('banners');
+            $banner->path = $file_path;
+            $id = R::store($banner);
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($banner));
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+    catch (Exception $e) {
+        echo $e->getMessage();
+    }
+});
+
+// PUT BANNERS
+$app->post('/banners/:id', function($id) use ($app) {
+    try 
+    {
+        $storage = new \Upload\Storage\FileSystem('assets');
+        $file = new \Upload\File('image', $storage);
+
+        $new_filename = uniqid();
+        $file->setName($new_filename);
+
+        try 
+        {
+            $file->upload();
+            $file_path = 'assets/'.$file->getNameWithExtension();
+            $banner = R::findOne('banners', 'id=?', array($id));
+            $banner->path = $file_path;
+            $id = R::store($banner);
+            $app->response()->header('Content-Type', 'application/json');
+            echo json_encode(R::exportAll($banner));
+        }
+        catch (Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+    catch (Exception $e) {
+        echo $e->getMessage();
+    }
+});
+
 // Run awesome app
 $app->run();
 

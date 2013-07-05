@@ -1,3 +1,10 @@
+.fixed {
+    margin-top: 20px;
+    position: fixed;
+}
+.container {
+    margin-left: 275px !important;
+}
 .container ul {
     list-style-type: none;
 }

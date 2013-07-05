@@ -22,7 +22,7 @@
             <li><a href="#/coupons">Coupons</a></li>
             <li><a href="#/businesses">Business</a></li>
             <li><a href="#/users">Users</a></li>
-            <li><a href="#/banner">Banners</a></li>
+            <li><a href="#/banners">Banners</a></li>
         </ul>
         <div class="page"></div>
     </div>
@@ -470,6 +470,47 @@
     </form>
     </script>
 
+    <!-- BANNER VIEW -->
+    <script type="text/template" id="banners-view">
+    <h3>Banners</h3>
+    <ul id="banner-list" class="thumbnails">
+        <% _.each(banners, function(banner) { %>
+        <li>
+            <div class="fileupload fileupload-new " data-provides="fileupload">
+                <div class="fileupload-new thumbnail imgLiquidFill imgLiquid"
+                    style="width: 260px; height: 180px; line-height: 20px;">
+                    <img src="<%=banner.get('path')%>"/>
+                </div>
+                <div class="fileupload-preview fileupload-exists thumbnail" 
+                    style="width: 260px; height: 180px; line-height: 20px;"></div>
+
+                <form enctype="multipart/form-data" class="banner-form">
+                    <input type="hidden" name="id" value="<%=banner.id%>"/>
+                    <div class="center">
+                        <span class="btn btn-file btn-warning">
+                            <i class="icon-white icon-plus"></i>
+                            <span class="fileupload-new">Select Image</span>
+                            <span class="fileupload-exists">Change</span>
+                            <input type="file" id="fileupload" name="image">
+                        </span>
+                        <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+                        <button type="submit" class="btn-submit btn fileupload-exists btn-danger">Upload</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+        <% }); %>
+    </ul>
+    </script>
+
+    <script type="text/template" id="edit-banner-view">
+    <h3>Edit Banner</h3>
+    <br/>
+    <div class="row">
+        <img src="<%=banner.path%>"/>
+    </div>
+    </script>
+
     <script src="public/admin/js/wysihtml5-0.3.0_rc2.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
@@ -480,6 +521,8 @@
     <script src="public/admin/js/bootstrap-fileupload.min.js"></script>
     <script src="public/admin/js/bootstrap-inputmask.min.js"></script>
     <script src="public/admin/js/jquery.tokeninput.js"></script>
+    <script src="public/admin/js/imgLiquid-min.js"></script>
+    <script src="public/admin/js/jquery.form.js"></script>
 
     <script src="public/admin/views/categories_view.js"></script>
     <script src="public/admin/views/edit_category_view.js"></script>
@@ -489,10 +532,12 @@
     <script src="public/admin/views/machine_coupons_view.js"></script>
     <script src="public/admin/views/users_view.js"></script>
     <script src="public/admin/views/email_view.js"></script>
+    <script src="public/admin/views/banners_view.js"></script>
     <script src="public/admin/views/edit_coupon_by_machine_view.js"></script>
     <script src="public/admin/views/edit_business_view.js"></script>
     <script src="public/admin/views/edit_machine_view.js"></script>
     <script src="public/admin/views/edit_coupon_view.js"></script>
+    <script src="public/admin/views/edit_banner_view.js"></script>
 
     <script src="public/admin/app.js"></script>
     <script src="public/admin/router.js"></script>
