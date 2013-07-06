@@ -54,7 +54,7 @@ function load_facebook()
     var js, fjs = d.getElementsByTagName(s)[0];
     if (d.getElementById(id)) return;
     js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/zh_CN/all.js#xfbml=1&appId=670613199631241";
+    js.src = "//connect.facebook.net/en/all.js#xfbml=1&appId=670613199631241";
     fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
 }

@@ -53,7 +53,7 @@ var EmailView = Backbone.View.extend({
                 content:    content
             },
             success: function(data) {
-                console.log(data);
+                alert(data);
             }
         });
 

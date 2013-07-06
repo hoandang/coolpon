@@ -120,3 +120,12 @@ p#machine-address input {
 #login-form {
     margin-top: 150px;
 }
+.fileupload {
+    position: relative;
+}
+.fileupload .icon-remove-sign {
+    position: absolute;
+    top: -10px; left: -10px;
+    cursor: pointer;
+}
+

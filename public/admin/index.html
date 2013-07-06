@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="public/admin/css/bootstrap-wysihtml5-0.0.2.css" rel="stylesheet">
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome-ie7.min.css" rel="stylesheet">
     <link href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" />
     <link href="public/admin/css/bootstrap-fileupload.min.css" rel="stylesheet" />
     <link href="public/admin/css/token-input.css" rel="stylesheet" />
@@ -25,7 +27,7 @@
             <li><a href="#/banners">Banners</a></li>
         </ul>
         <div class="row">
-            <a href="/logout" class="pull-right btn">Logout</a>
+            <a href="/logout" class="pull-right btn btn-danger">Logout</a>
         </div>
         <div class="page"></div>
     </div>
@@ -83,7 +85,6 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Categories</th>
                 <th>Location</th>
                 <th></th>
             </tr>
@@ -92,16 +93,10 @@
             <% _.each(machines.reverse(), function(machine) { %>
             <tr>
                 <td><%= machine.get('name') %></td>
-                <td>
-                <% var last_element = _.last(machine.get('categories')); %>
-                <% _.each(machine.get('categories').reverse(), function(category) { %>
-                    <span><%=category.name%> <%=_.isEqual(last_element, category) ? '.' : '-' %></span>
-                <% }); %>
-                </td>
                 <td><%= machine.get('address') %>, <%=machine.get('suburb')%></td>
                 <td class="operation">
-                    <a href="#/machines/<%= machine.id %>" class="btn">View</a>
-                    <a href="#/machines/<%=machine.id%>/edit" class="btn btn-warning">Edit</a>
+                    <!--<a href="#/machines/<%= machine.id %>/coupons" class="btn btn-custom-width">View</a>-->
+                    <a href="#/machines/<%=machine.id%>/edit" class="btn btn-warning btn-custom-width">Edit</a>
                 </td>
             </tr>
             <% }); %>
@@ -117,10 +112,6 @@
             <label>Name: </label>
             <input type="text" name="name" value="<%=machine ? machine.name : ''%>"/>
         </p>
-        <label>Categories: </label>
-        <p class="control-group">
-            <input type="text" id="machine-category" name="categories" value=""/>
-        </p>
         <p class="control-group" id="machine-suburb">
             <label>Location & Post Code:</label>
             <input type="text" name="suburb" class="span4" value="<%=machine ? machine.suburb : ''%>"/>
@@ -129,6 +120,8 @@
             <label>Address: </label>
             <input type="text" class="span4" name="address" value="<%=machine ? machine.address : ''%>" />
         </p>
+        <br/>
+        <span class="error-msg"></span>
         <hr/>
         <button class="btn btn-success" type="submit">
             <i class="icon-upload icon-white"></i>
@@ -220,6 +213,7 @@
             <tr>
                 <th class="name">Name</th>
                 <th class="thumb">Image</th>
+                <th class="">Category</th>
                 <th class="">Machine</th>
                 <th class="">Business</th>
                 <th class="expired-date">Expired Date</th>
@@ -231,6 +225,7 @@
             <tr>
                 <td class="name"><%= coupon.get('name') %></td>
                 <td class="thumb"><img width="150px" height="70px" src="<%= coupon.get('image') %>" /></td>
+                <td class="name"><%=coupon.get('category_name')%></td>
                 <td class="name"><%=coupon.get('machine_name')%></td>
                 <td class="name"><%=coupon.get('business_name')%></td>
                 <td class="expired-date"><%=coupon.get('expired_date') %></td>
@@ -245,14 +240,45 @@
 
     <!-- EDIT COUPON TEMPLATE -->
     <script type="text/template" id="edit-coupon-template">
-    <form action="/coupons" method="post" enctype="multipart/form-data">
+    <a href="#/coupons">&#8592; Back</a>
+    <form id="edit-coupon-form" enctype="multipart/form-data">
         <legend><%=coupon ? 'Edit' : 'Create Coupon'%> <%=coupon ? coupon.name : ''%></legend>
-        <input type="hidden" name="request" value="coupon"/>
-        <p>
+
+        <div class="fileupload fileupload-new center" data-provides="fileupload">
+            <div class="fileupload-new thumbnail imgLiquidFill imgLiquid"
+                style="width: 260px; height: 180px; line-height: 20px;">
+                <img src="<%=coupon ? coupon.image : 'assets/no-image.jpg'%>"/>
+            </div>
+            <div class="fileupload-preview fileupload-exists thumbnail" 
+                style="width: 260px; height: 180px; line-height: 20px;"></div>
+            <div class="center">
+                <span class="btn btn-file btn-warning">
+                    <i class="icon-white icon-plus"></i>
+                    <span class="fileupload-new">Select Image</span>
+                    <span class="fileupload-exists">Change</span>
+                    <input type="file" id="fileupload" name="image">
+                </span>
+                <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+            </div>
+        </div>
+
+        <hr/>
+        <p class="control-group">
             <input type="text" name="name" value="<%=coupon ? coupon.name : ''%>" placeholder="Enter Coupon Name"/>
             <input placeholder="Enter Expired Date" value="<%=coupon ? coupon.expired_date : ''%>" name="expired_date" type="text" data-mask="99/99/9999"/>
         </p>
-        <p>
+        <p class="control-group">
+            <select name="category_id">
+                <option value="">Pick a Category...</option>
+                <% var category_id = coupon ? coupon.category_id : '' %>
+                <% _.each(categories.reverse(), function(category) { %>
+                    <% if (category_id == category.id) { %>
+                        <option selected="selected" value="<%= category.id %>"><%= category.get('name') %></option>
+                    <% } else { %>
+                        <option value="<%= category.id %>"><%= category.get('name') %></option>
+                    <% }; %>
+                <% }); %>
+            </select>
             <select name="machine_id">
                 <option value="">Pick a machine...</option>
                 <% var machine_id = coupon ? coupon.machine_id : '' %>
@@ -276,31 +302,14 @@
                 <% }); %>
             </select>
         </p>
-        <p>
+        <p class="control-group">
             <textarea class="span12" rows="11" id="description" 
                 name="description" placeholder="Enter Coupon's Description ...">
                     <%=coupon ? coupon.description : ''%>
             </textarea>
         </p>
-        <p>
-            <div class="fileupload fileupload-new" data-provides="fileupload">
-                <div class="fileupload-new thumbnail" style="width: 200px; height: 150px;">
-                    <img src="<%=coupon ? coupon.image : 'http://www.placehold.it/200x150/EFEFEF/AAAAAA&text=no+image'%>"/>
-                </div>
-                <div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
-                <div>
-                    <span class="btn btn-file">
-                        <i class="icon-plus"></i>
-                        <span class="fileupload-new">Select Image</span>
-                        <span class="fileupload-exists">Change</span>
-                        <input type="file" id="fileupload" name="image">
-                    </span>
-                    <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
-                </div>
-            </div>
-        </p>
         <hr/>
-        <button class="btn btn-success" type="submit">
+        <button class="btn btn-success btn-custom-width" type="submit">
             <i class="icon-upload icon-white"></i>
             <span><%=coupon ? 'Update' : 'Create'%></span>
         </button>
@@ -317,18 +326,10 @@
 
     <!-- COUPONS BY MACHINE TEMPLATE -->
     <script type="text/template" id="coupons-by-machine">
-    <ul class="machine-list">
-        <% _.each(machines, function(machine) { %>
-        <li>
-            <a href="#/machines/<%= machine.id %>">
-                <%= machine.get('name') %>
-            </a>
-        </li>
-        <% }); %>
-    </ul>
+    <a href="#/machines">&#8592; Back</a>
     <div class="clearfix"></div>
-    <h3><%= current_machine.name %></h3>
-    <a href="#/machines/<%= current_machine.id %>/coupons/new" class="btn btn-info">
+    <h3><%= machine.name %></h3>
+    <a href="#/machines/<%= machine.id %>/coupons/new" class="btn btn-info">
         <i class="icon-plus icon-white"></i>
         <span>New Coupon</span>
     </a>
@@ -343,13 +344,13 @@
             </tr>
         </thead>
         <tbody>
-            <% _.each(coupons.reverse(), function(coupon) { %>
+            <% _.each(machine.coupons.reverse(), function(coupon) { %>
             <tr>
-                <td class="name"><%= coupon.get('name') %></td>
-                <td class="thumb"><img width="150px" height="70px" src="<%= coupon.get('image') %>" /></td>
-                <td class="expired-date"><%=coupon.get('expired_date') %></td>
+                <td class="name"><%= coupon.name %></td>
+                <td class="thumb"><img width="150px" height="70px" src="<%= coupon.image %>" /></td>
+                <td class="expired-date"><%=coupon.expired_date %></td>
                 <td class="operation">
-                    <a href="#/machines/<%=current_machine.id%>/coupons/<%=coupon.id%>/edit"
+                    <a href="#/machines/<%=machine.id%>/coupons/<%=coupon.id%>/edit"
                         class="btn btn-warning btn-custom-width">Edit</a>
                 </td>
             </tr>
@@ -370,6 +371,8 @@
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
                 <th>Address</th>
                 <th></th>
             </tr>
@@ -378,6 +381,8 @@
             <% _.each(businesses.reverse(), function(business) { %>
             <tr>
                 <td><%= business.get('name') %></td>
+                <td><%= business.get('phone') %></td>
+                <td><%= business.get('email') %></td>
                 <td><%= business.get('address') %></td>
                 <td class="operation">
                     <a href="#/businesses/<%=business.id%>/edit" class="btn btn-warning btn-custom-width">Edit</a>
@@ -390,15 +395,20 @@
 
     <!-- EDIT BUSINESS TEMPLATE -->
     <script type="text/template" id="edit-business-template">
+    <a href="#/businesses">&#8592; Back</a>
     <form class="edit-business-form">
         <legend><%=business ? 'Edit' : 'Create'%> Business</legend>
         <p class="control-group">
-            <label>Name: </label>
-            <input type="text" name="name" value="<%=business ? business.name : ''%>" />
+            <input placeholder="Enter Name" type="text" name="name" value="<%=business ? business.name : ''%>" />
         </p>
         <p class="control-group">
-            <label>Address: </label>
-            <input type="text" class="span4" name="address" value="<%=business ? business.address : ''%>" />
+            <input placeholder="Enter Address" type="text" class="span4" name="address" value="<%=business ? business.address : ''%>" />
+        </p>
+        <p class="control-group">
+            <input placeholder="Enter Phone Number" type="text" class="span4" name="phone" value="<%=business ? business.phone : ''%>" />
+        </p>
+        <p class="control-group">
+            <input placeholder="Enter Email" type="text" class="span4" name="email" value="<%=business ? business.email : ''%>" />
         </p>
         <p>
             <textarea class="span12" rows="11" id="description" 
@@ -461,7 +471,7 @@
     <br/>
     <form id="email-form">
         <p><input type="text" placeholder="From Email" id="from_email"/></p>
-        <p><input type="text" placeholder="To Email" id="to_email" value="<%=to_email%>"/></p>
+        <p><input type="text" placeholder="To Email" id="to_email" class="span6" value="<%=to_email%>"/></p>
         <p><input type="text" placeholder="Subject" id="email_subject" class="span5"/></p>
         <textarea class="span12" rows="11" id="email_body" 
             name="email_body" placeholder="Enter Email Content ...">
@@ -476,10 +486,16 @@
     <!-- BANNER VIEW -->
     <script type="text/template" id="banners-view">
     <h3>Banners</h3>
+    <a href="#" id="banner-new" class="btn btn-info">
+        <i class="icon-plus icon-white"></i>
+        <span>New Banner</span>
+    </a>
+    <br/><br/>
     <ul id="banner-list" class="thumbnails">
-        <% _.each(banners, function(banner) { %>
+        <% _.each(banners.reverse(), function(banner) { %>
         <li>
-            <div class="fileupload fileupload-new " data-provides="fileupload">
+            <div class="fileupload fileupload-new" data-provides="fileupload">
+                <i class="icon-remove-sign icon-large" data-id="<%=banner.id%>"></i>
                 <div class="fileupload-new thumbnail imgLiquidFill imgLiquid"
                     style="width: 260px; height: 180px; line-height: 20px;">
                     <img src="<%=banner.get('path')%>"/>

@@ -6,23 +6,15 @@ var EditMachineView = Backbone.View.extend({
         if (options.id)
         {
             that.machine = new Machine({ id: options.id });
-            var categories_by_machine = new CategoriesByMachine({ id: options.id });
 
-            $.when(that.machine.fetch(), categories_by_machine.fetch()).done(function(){
-                var template = _.template($('#edit-machine-template').html(), {
-                    machine: that.machine.toJSON()[0], 
-                });
-                that.$el.html(template);
-                location_autocomplete();
-                var pre_populate_data = $.map(categories_by_machine.models, function(value) {
-                    return value.attributes;
-                });
-                    
-                $('#machine-category').tokenInput('/categories/search', {
-                    prePopulate: pre_populate_data,
-                    preventDuplicates: true,
-                    theme: 'facebook'
-                });
+            that.machine.fetch({
+                success: function(machine) {
+                    var template = _.template($('#edit-machine-template').html(), {
+                        machine: machine.toJSON()[0]
+                    });
+                    that.$el.html(template);
+                    location_autocomplete();
+                }
             });
         }
         else
@@ -30,10 +22,6 @@ var EditMachineView = Backbone.View.extend({
             var template = _.template($('#edit-machine-template').html(), {machine: null});
             that.$el.html(template);
             location_autocomplete();
-            $('#machine-category').tokenInput('/categories/search', {
-                preventDuplicates: true,
-                theme: 'facebook'
-            });
         }
     },
     events: {
@@ -51,6 +39,10 @@ var EditMachineView = Backbone.View.extend({
     },
     save_machine: function(ev) {
         var machine_detail = $(ev.currentTarget).serializeObject();
+        var error_msg = $('.edit-machine-form .error-msg');
+
+        error_msg.html('');
+
         if (is_validated(machine_detail))
         {
             setup_errors();
@@ -67,20 +59,22 @@ var EditMachineView = Backbone.View.extend({
                         var address_number = result.split(' ');
                         if (num_commas == 2 && !isNaN(address_number[0]))
                         {
-                            console.log('Did you mean: ' + result.toUpperCase());
+                            error_msg.addClass('alert alert-error');
+                            error_msg.html('Did you mean: ' + result.toUpperCase());
                             indicate_location_errors();
                         }
                         else
                         {
-                            console.log('The suburb and location are not valid or existed.');
+                            error_msg.addClass('alert alert-error');
+                            error_msg.html('The suburb and location are not valid or existed.');
                             indicate_location_errors();
                         }
                     }
                     else
                     {
                         console.log('Valid');
-                        var new_machine = new Machine();
-                        new_machine.save(machine_detail, {
+                        var machine = new Machine();
+                        machine.save(machine_detail, {
                             success: function (new_machine) {
                                 router.navigate('#/machines', {trigger: true});
                             }

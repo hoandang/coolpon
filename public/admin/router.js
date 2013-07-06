@@ -8,8 +8,8 @@ var Router = Backbone.Router.extend ({
         'machines':          'viewMachines',
         'machines/new':      'editMachine',
         'machines/:id/edit': 'editMachine',
-        'machines/:id':      'machineDetail',
 
+        'machines/:id/coupons':              'machineDetail',
         'machines/:id/coupons/new':          'editCouponByMachine',
         'machines/:m_id/coupons/:c_id/edit': 'editCouponByMachine',
 

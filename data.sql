@@ -34,31 +34,19 @@ CREATE TABLE IF NOT EXISTS machines (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS services (
-    id          INTEGER NOT NULL AUTO_INCREMENT,
-    machine_id  INTEGER,
-    category_id INTEGER,
-    FOREIGN KEY (category_id) REFERENCES categories(id)
-       ON DELETE CASCADE
-       ON UPDATE CASCADE,
-    FOREIGN KEY (machine_id) REFERENCES machines(id)
-       ON DELETE CASCADE
-       ON UPDATE CASCADE,
-    PRIMARY KEY (id)
-);
-
 CREATE TABLE IF NOT EXISTS businesses (
-    id       INTEGER NOT NULL AUTO_INCREMENT,
-    name     VARCHAR(255) NOT NULL,
-    address  VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(100) NOT NULL,
-    email varchar(100) NOT NULL,
+    id      INTEGER NOT NULL AUTO_INCREMENT,
+    name    VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    phone   VARCHAR(100) NOT NULL,
+    email   VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     PRIMARY KEY (id)
 );
 
 CREATE TABLE IF NOT EXISTS coupons (
     id           INTEGER NOT NULL AUTO_INCREMENT,
+    category_id  INTEGER NOT NULL,
     machine_id   INTEGER NOT NULL,
     business_id  INTEGER NOT NULL,
     name         VARCHAR(255) NOT NULL,
@@ -66,7 +54,10 @@ CREATE TABLE IF NOT EXISTS coupons (
     description  TEXT NOT NULL,
     image        TEXT NOT NULL,
     PRIMARY KEY  (id),
-    FOREIGN KEY  (machine_id) REFERENCES  machines(id)
+    FOREIGN KEY  (category_id) REFERENCES categories(id)
+       ON DELETE CASCADE
+       ON UPDATE CASCADE,
+    FOREIGN KEY  (machine_id) REFERENCES machines(id)
        ON DELETE CASCADE
        ON UPDATE CASCADE,
     FOREIGN KEY  (business_id) REFERENCES businesses(id)
@@ -85,9 +76,9 @@ CREATE TABLE IF NOT EXISTS australia_postcode (
 INSERT INTO admin VALUES('admin', 'admin');
 
 INSERT INTO banners(path) VALUES
-('assets/no-image.jpg'),
-('assets/no-image.jpg'),
-('assets/no-image.jpg');
+('assets/banner1.jpg'),
+('assets/banner2.jpg'),
+('assets/banner3.png');
 
 INSERT INTO users(name, email) VALUES
 ('Foo', 'danghuyhoan@gmail.com'),
@@ -153,34 +144,22 @@ INSERT INTO machines(name, suburb, address) VALUES
 ('Machine 49', 'NARWEE NSW 2209, AUSTRALIA', '11 Grove Ave'),
 ('Machine 50', 'LUGARNO NSW 2210, AUSTRALIA', '37 Grandview Crescent');
 
-INSERT INTO services(machine_id, category_id) VALUES
-(1, 1), -- m1, c1
-(1, 2), -- m1, c2
-(1, 3), -- m1, c3
-(2, 2), -- m2, c2
-(2, 1), -- m2, c1
-(2, 3), -- m2, c3
-(3, 1), -- m3, c1
-(3, 4), -- m3, c4
-(4, 2), -- m4, c2
-(4, 3); -- m4, c3
-
-INSERT INTO businesses(name, address, phone_number, email, description) VALUES
+INSERT INTO businesses(name, address, phone, email, description) VALUES
 ('Business 1', '12 ABC Street NSW, Sydney', '01234343', 'foo@gmail.com', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
 ('Business 2', '34 OIR Street NSW, Sydney', '34542334', 'bar@gmail.com', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
 ('Business 3', '12 UTR Street NSW, Sydney', '34542334', 'bar@gmail.com', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
 ('Business 4', '12 OKKM Street NSW, Sydney','34542334', 'bar@gmail.com',  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere'),
 ('Business 5', '12 GFDM Street NSW, Sydney','34542334', 'bar@gmail.com',  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce laoreet venenatis dapibus. Fusce sed sem nunc. Vivamus sollicitudin vitae neque in posuere');
 
-INSERT INTO coupons(machine_id, business_id, name, expired_date, description, image) VALUES
-(1, 1, 'Coupon 1', '12/09/2013', 'This is coupon 1', 'assets/1.jpg'),
-(1, 2, 'Coupon 2', '02/08/2013', 'This is coupon 2', 'assets/2.jpg'),
-(1, 4, 'Coupon 3', '22/09/2013', 'This is coupon 3', 'assets/3.jpg'),
-(2, 2, 'Coupon 4', '12/12/2013', 'This is coupon 4', 'assets/4.jpg'),
-(2, 3, 'Coupon 5', '31/10/2013', 'This is coupon 5', 'assets/5.jpg'),
-(3, 2, 'Coupon 6', '12/11/2013', 'This is coupon 6', 'assets/6.jpg'),
-(3, 5, 'Coupon 7', '31/07/2013', 'This is coupon 7', 'assets/7.jpg'),
-(2, 5, 'Coupon 8', '12/09/2013', 'This is coupon 4', 'assets/4.jpg');
+INSERT INTO coupons(category_id, machine_id, business_id, name, expired_date, description, image) VALUES
+(2, 1, 1, 'Coupon 1', '12/09/2013', 'This is coupon 1', 'assets/1.jpg'),
+(3, 1, 2, 'Coupon 2', '02/08/2013', 'This is coupon 2', 'assets/2.jpg'),
+(1, 4, 4, 'Coupon 3', '22/09/2013', 'This is coupon 3', 'assets/3.jpg'),
+(2, 2, 2, 'Coupon 4', '12/12/2013', 'This is coupon 4', 'assets/4.jpg'),
+(4, 2, 3, 'Coupon 5', '31/10/2013', 'This is coupon 5', 'assets/5.jpg'),
+(3, 3, 2, 'Coupon 6', '12/11/2013', 'This is coupon 6', 'assets/6.jpg'),
+(3, 3, 5, 'Coupon 7', '31/07/2013', 'This is coupon 7', 'assets/7.jpg'),
+(2, 2, 5, 'Coupon 8', '12/09/2013', 'This is coupon 4', 'assets/4.jpg');
 
 INSERT INTO australia_postcode (postcode,location,state) VALUES ('4352','KLEINTON','QLD');
 INSERT INTO australia_postcode (postcode,location,state) VALUES ('4352','KULPI','QLD');

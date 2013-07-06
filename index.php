@@ -72,7 +72,22 @@ $app->post('/login', function() use ($app) {
 $app->get('/categories', function() use ($app) {
     try
     {
-        $categories = R::findAll('categories');
+        $uncouponed_categories = R::findAll('categories');
+        $categories = array();
+        foreach ($uncouponed_categories as $uncouponed_category)
+        {
+            $sql = 'SELECT co.id, co.name, co.expired_date, co.description '.
+                   'FROM categories cat JOIN coupons co ON cat.id = co.category_id '.
+                   'WHERE cat.id = '.$uncouponed_category->id;
+            $records = R::getAll($sql);
+            $coupons = R::convertToBeans('coupons', $records);
+            $category = R::dispense('category');
+            $category->id = $uncouponed_category->id;
+            $category->name = $uncouponed_category->name;
+            $category->coupons = $coupons;
+
+            array_push($categories, $category);
+        }
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($categories));
     }
@@ -82,6 +97,7 @@ $app->get('/categories', function() use ($app) {
     }
 });
 
+// SEARCH CATEGORIES
 $app->get('/categories/search', function() use ($app) {
     $q = $app->request()->get('q');
     try
@@ -95,19 +111,28 @@ $app->get('/categories/search', function() use ($app) {
         response_json_error($app, 400, $e->getMessage());
     }
 });
-
-// GET CATEGORIES FROM MACHINE
-$app->get('/machines/:id/categories', function($id) use ($app) {
-    try 
+// SEARCH BUSINESSES
+$app->get('/businesses/search', function() use ($app) {
+    $q = $app->request()->get('q');
+    try
     {
-        $sql = "SELECT DISTINCT c.id, c.name ".
-            "FROM services s JOIN machines m, categories c ".
-            "WHERE m.id = $id ".
-            "AND c.id = s.category_id AND m.id = s.machine_id";
-        $records = R::getAll($sql);
-        $categories = R::convertToBeans('categories', $records);
+        $businesses = R::find('businesses', 'name like ?', array("%%%$q%%"));
         $app->response()->header('Content-Type', 'application/json');
-        echo json_encode(R::exportAll($categories));
+        echo json_encode(R::exportAll($businesses));
+    }
+    catch (Exception $e)
+    {
+        response_json_error($app, 400, $e->getMessage());
+    }
+});
+// SEARCH MACHINES
+$app->get('/machines/search', function() use ($app) {
+    $q = $app->request()->get('m');
+    try
+    {
+        $machines = R::find('machines', 'name like ?', array("%%%$q%%"));
+        $app->response()->header('Content-Type', 'application/json');
+        echo json_encode(R::exportAll($machines));
     }
     catch (Exception $e)
     {
@@ -120,39 +145,16 @@ $app->get('/categories/:id', function($id) use ($app) {
     // category
     try 
     {
-        $raw_category = R::findOne('categories', 'id=?', array($id));
-
-        $sql = 'SELECT DISTINCT m.* FROM categories c '.
-               'JOIN services s ON s.category_id = c.id '.
-               'JOIN machines m ON s.machine_id = m.id '.
-               'WHERE c.id = '.$id;
+        $uncouponed_category = R::findOne('categories', 'id=?', array($id));
+        $sql = 'SELECT co.id, co.name, co.expired_date, co.description, co.image '.
+               'FROM categories cat JOIN coupons co ON co.category_id = cat.id '.
+               'WHERE cat.id = '.$id;
         $records = R::getAll($sql);
-        $bean_machines = R::convertToBeans('machines', $records);
-
-        $machines = [];
-
-        foreach ($bean_machines as $bean_machine)
-        {
-            $sql = 'SELECT c.* FROM coupons c '.
-                   'JOIN machines m on c.machine_id = m.id '.
-                   'WHERE m.id = '.$bean_machine->id;
-            $records = R::getAll($sql);
-            $bean_coupons = R::convertToBeans('coupons', $records);
-
-            $machine = R::dispense('machine');
-            $machine->id      = $bean_machine->id;
-            $machine->name    = $bean_machine->name;
-            $machine->suburb  = $bean_machine->suburb;
-            $machine->address = $bean_machine->address;
-            $machine->coupons = $bean_coupons;
-            array_push($machines, $machine);
-        }
-
+        $coupons = R::convertToBeans('coupons', $records);
         $category = R::dispense('category');
         $category->id = $id;
-        $category->name = $raw_category->name;
-        $category->machines = $machines;
-
+        $category->name = $uncouponed_category->name;
+        $category->coupons = $coupons;
         $app->response()->header('content-type', 'application/json');
         echo json_encode(R::exportall($category));
     } 
@@ -195,8 +197,7 @@ $app->put('/categories/:id', function($id) use ($app) {
         $request = $app->request();
         $body    = $request->getBody();
         $input   = json_decode($body);
-
-        $name     = $input->name;
+        $name    = $input->name;
 
         if ($name == '')
             response_json_error($app, 400, 'Bad Request');
@@ -271,30 +272,29 @@ $app->get('/locations/search', function() use ($app) {
 
 // GET MACHINE LOCATION
 $app->get('/machines/search', function() use ($app) {
-    if (strlen($app->request()->get('q')) >= 3)
+    $query = $app->request()->get('q');
+    if (strlen($query) >= 3)
     {
-        $query = $app->request()->get('q');
-        $uncategorised_machines = R::find('machines', 'suburb REGEXP ?', array($query));
-        $machines = [];
-        if (sizeof($uncategorised_machines) > 0)
+        $uncouponed_machines = R::find('machines', 'suburb REGEXP ?', array($query));
+        $machines = array();
+        if (sizeof($uncouponed_machines) > 0)
         {
-            foreach ($uncategorised_machines as $uncategorised_machine)
+            foreach ($uncouponed_machines as $uncouponed_machine)
             {
-                $sql = 'SELECT c.id, c.name FROM machines m '.
-                    'JOIN services s ON s.machine_id = m.id '.
-                    'JOIN categories c ON s.category_id = c.id '.
-                    'WHERE m.id = '.$uncategorised_machine->id;
+                $sql = 'SELECT c.id, c.name, c.expired_date, c.description, c.image '.
+                       'FROM machines m JOIN coupons c ON c.machine_id = m.id '.
+                       'WHERE m.id = '.$uncouponed_machine->id;
 
                 $records = R::getAll($sql);
-                $categories = R::convertToBeans('categories', $records);
+                $coupons = R::convertToBeans('coupons', $records);
 
                 $machine = R::dispense('machine');
 
-                $machine->id         = $uncategorised_machine->id;
-                $machine->name       = $uncategorised_machine->name;
-                $machine->suburb     = $uncategorised_machine->suburb;
-                $machine->address    = $uncategorised_machine->address;
-                $machine->categories = $categories;
+                $machine->id      = $uncouponed_machine->id;
+                $machine->name    = $uncouponed_machine->name;
+                $machine->suburb  = $uncouponed_machine->suburb;
+                $machine->address = $uncouponed_machine->address;
+                $machine->coupons = $coupons;
 
                 array_push($machines, $machine);
             }
@@ -312,25 +312,24 @@ $app->get('/machines/search', function() use ($app) {
 $app->get('/machines', function() use ($app) {
     try 
     {
-        $uncategorised_machines = R::findAll('machines');
-        $machines = [];
-        foreach ($uncategorised_machines as $uncategorised_machine)
+        $uncouponed_machines = R::findAll('machines');
+        $machines = array();
+        foreach ($uncouponed_machines as $uncouponed_machine)
         {
-            $sql = 'SELECT c.id, c.name FROM machines m '.
-                'JOIN services s ON s.machine_id = m.id '.
-                'JOIN categories c ON s.category_id = c.id '.
-                'WHERE m.id = '.$uncategorised_machine->id;
+            $sql = 'SELECT c.id, c.name, c.expired_date, c.description, c.image '.
+                    'FROM machines m JOIN coupons c ON c.machine_id = m.id '.
+                    'WHERE m.id = '.$uncouponed_machine->id;
 
             $records = R::getAll($sql);
-            $categories = R::convertToBeans('categories', $records);
+            $coupons = R::convertToBeans('coupons', $records);
 
             $machine = R::dispense('machine');
 
-            $machine->id         = $uncategorised_machine->id;
-            $machine->name       = $uncategorised_machine->name;
-            $machine->suburb     = $uncategorised_machine->suburb;
-            $machine->address    = $uncategorised_machine->address;
-            $machine->categories = $categories;
+            $machine->id      = $uncouponed_machine->id;
+            $machine->name    = $uncouponed_machine->name;
+            $machine->suburb  = $uncouponed_machine->suburb;
+            $machine->address = $uncouponed_machine->address;
+            $machine->coupons = $coupons;
 
             array_push($machines, $machine);
         }
@@ -342,27 +341,27 @@ $app->get('/machines', function() use ($app) {
         response_json_error($app, 400, $e->getMessage());
     }
 });
+
 // GET MACHINE
 $app->get('/machines/:id', function($id) use ($app) {
     try 
     {
-        $uncategorised_machine = R::findOne('machines', 'id=?', array($id));
+        $uncouponed_machine = R::findOne('machines', 'id=?', array($id));
 
-        $sql = 'SELECT c.id, c.name FROM machines m '.
-            'JOIN services s ON s.machine_id = m.id '.
-            'JOIN categories c ON s.category_id = c.id '.
-            'WHERE m.id = '.$id;
+        $sql = 'SELECT c.id, c.name, c.expired_date, c.description, c.image '.
+                'FROM machines m JOIN coupons c ON c.machine_id = m.id '.
+                'WHERE m.id = '.$id;
 
         $records = R::getAll($sql);
-        $categories = R::convertToBeans('categories', $records);
+        $coupons = R::convertToBeans('coupons', $records);
 
         $machine = R::dispense('machine');
 
-        $machine->id         = $id;
-        $machine->name       = $uncategorised_machine->name;
-        $machine->suburb     = $uncategorised_machine->suburb;
-        $machine->address    = $uncategorised_machine->address;
-        $machine->categories = $categories;
+        $machine->id      = $id;
+        $machine->name    = $uncouponed_machine->name;
+        $machine->suburb  = $uncouponed_machine->suburb;
+        $machine->address = $uncouponed_machine->address;
+        $machine->coupons = $coupons;
 
         $app->response()->header('content-type', 'application/json');
         echo json_encode(R::exportall($machine));
@@ -370,21 +369,6 @@ $app->get('/machines/:id', function($id) use ($app) {
     catch (exception $e)
     {
         response_json_error($app, 400, $e->getmessage());
-    }
-});
-
-// GET COUPONS BY MACHINE
-$app->get('/machines/:id/coupons', function($id) use ($app) {
-    try 
-    {
-        //$coupons = R::find('coupons', ' machine_id=? ORDER BY id DESC ', array($id));
-        $coupons = R::find('coupons', 'machine_id=?', array($id));
-        $app->response()->header('Content-Type', 'application/json');
-        echo json_encode(R::exportAll($coupons));
-    } 
-    catch (Exception $e)
-    {
-        response_json_error($app, 400, $e->getMessage());
     }
 });
 
@@ -410,25 +394,7 @@ $app->post('/machines', function() use ($app) {
             $machine->suburb  = (string)strtoupper($suburb);
             $machine->address = (string)strtoupper($address);
 
-            $machine_id = R::store($machine);
-
-            if ($input->categories != '') {
-                $categories = explode(',', $input->categories);
-                try
-                {
-                    foreach($categories as $category_id) 
-                    {
-                        $service = R::dispense('services');
-                        $service->machine_id  = $machine_id;
-                        $service->category_id = $category_id;
-                        $service_id = R::store($service);
-                    }
-                }
-                catch (Exception $e) 
-                {
-                    response_json_error($app, 400, $e->getMessage());
-                }
-            }
+            $id = R::store($machine);
 
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode(R::exportAll($machine));
@@ -461,27 +427,7 @@ $app->put('/machines/:id', function($id) use ($app) {
             $machine->suburb  = (string)strtoupper($suburb);
             $machine->address = (string)strtoupper($address);
 
-            $machine_id = R::store($machine);
-
-            R::exec("DELETE FROM services WHERE machine_id = $machine_id");
-
-            if ($input->categories != '') {
-                $categories = explode(',', $input->categories);
-                try
-                {
-                    foreach($categories as $category_id) 
-                    {
-                        $service = R::dispense('services');
-                        $service->machine_id  = $machine_id;
-                        $service->category_id = $category_id;
-                        $service_id = R::store($service);
-                    }
-                }
-                catch (Exception $e) 
-                {
-                    response_json_error($app, 400, $e->getMessage());
-                }
-            }
+            $id = R::store($machine);
 
             $app->response()->header('Content-Type', 'application/json');
             echo json_encode(R::exportAll($machine));
@@ -516,13 +462,14 @@ $app->delete('/machines/:id', function($id) use ($app) {
 $app->get('/coupons', function() use ($app) {
     try 
     {
-        $sql= 'SELECT c.*, '.
-              'm.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
-              'b.name "business_name", b.address "business_address", b.phone_number, b.email, '.
-              'b.description "business_desc "'.
+        $sql= 'SELECT c.id, c.name, c.expired_date, c.image, '.
+              'm.id "machine_id", m.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
+              'cat.id "category_id", cat.name "category_name", '.
+              'b.id "business_id", b.name "business_name", b.address "business_address", b.phone "business_phone", b.email "business_email", b.description "business_desc" '.
               'FROM coupons c '.
               'JOIN machines m ON c.machine_id = m.id '.
-              'JOIN businesses b ON c.business_id = b.id';
+              'JOIN categories cat ON c.category_id = cat.id '.
+              'JOIN businesses b ON c.business_id = b.id ORDER BY c.id';
         $records = R::getAll($sql);
         $coupons = R::convertToBeans('coupons', $records);
         $app->response()->header('Content-Type', 'application/json');
@@ -539,15 +486,16 @@ $app->get('/coupons/:id', function($id) use ($app) {
     try 
     {
         $sql= 'SELECT c.*, '.
-              'm.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
-              'b.name "business_name", b.address "business_address", b.phone_number "business_phone_number", b.email "business_email", '.
-              'b.description "business_desc "'.
+              'm.id "machine_id", m.name "machine_name", m.suburb "machine_suburb", m.address "machine_address", '.
+              'cat.id "category_id", cat.name "category_name", '.
+              'b.id "business_id", b.name "business_name", b.address "business_address", b.phone "business_phone", b.email "business_email", b.description "business_desc" '.
               'FROM coupons c '.
               'JOIN machines m ON c.machine_id = m.id '.
+              'JOIN categories cat ON c.category_id = cat.id '.
               'JOIN businesses b ON c.business_id = b.id '.
-              'WHERE c.id = '.$id;
-        $record = R::getAll($sql);
-        $coupon = R::convertToBeans('coupon', $record);
+              'WHERE c.id = '. $id;
+        $records = R::getAll($sql);
+        $coupon = R::convertToBeans('coupon', $records);
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($coupon));
     } 
@@ -559,22 +507,16 @@ $app->get('/coupons/:id', function($id) use ($app) {
 
 // POST COUPON
 $app->post('/coupons', function() use ($app) {
-    $request = $_POST['request'];
-
     $machine_id   = $_POST['machine_id'];
+    $category_id  = $_POST['category_id'];
     $business_id  = $_POST['business_id'];
     $expired_date = $_POST['expired_date'];
     $name         = $_POST['name'];
     $description  = $_POST['description'];
 
     if ($machine_id == '' || $business_id == '' || $expired_date == ''
-        || $name == '') 
-    {
-        echo '<a href="javascript:history.back()">Back</a>';
-        echo '<br/>';
-        echo 'Bad Request.<br/>';
-        echo 'Mandatory fields need to be filled.';
-    }
+        || $name == '' || $description == '') 
+        echo 'Failed';
     else
     {
         try
@@ -584,10 +526,11 @@ $app->post('/coupons', function() use ($app) {
             {
                 $coupon_id = $_POST['id'];
                 $coupon = R::findOne('coupons', 'id=?', array($coupon_id));
-                $coupon->machine_id   = (int)$machine_id;
-                $coupon->expired_date = (string)$expired_date;
-                $coupon->business_id  = (int)$business_id;
                 $coupon->name         = (string)$name;
+                $coupon->machine_id   = (int)$machine_id;
+                $coupon->category_id  = (int)$category_id;
+                $coupon->business_id  = (int)$business_id;
+                $coupon->expired_date = (string)$expired_date;
                 $coupon->description  = (string)$description;
                 try
                 {
@@ -605,6 +548,7 @@ $app->post('/coupons', function() use ($app) {
                 }
                 $coupon->image = $file_path;
                 $id = R::store($coupon);
+                echo 'Updated';
             }
             else
             {
@@ -625,19 +569,15 @@ $app->post('/coupons', function() use ($app) {
                 }
                 $coupon = R::dispense('coupons');
                 $coupon->machine_id   = (int)$machine_id;
-                $coupon->expired_date = (string)$expired_date;
                 $coupon->business_id  = (int)$business_id;
+                $coupon->category_id  = (int)$category_id;
+                $coupon->expired_date = (string)$expired_date;
                 $coupon->name         = (string)$name;
                 $coupon->description  = (string)$description;
                 $coupon->image        = $file_path;
                 $id = R::store($coupon);
+                echo 'Created';
             }
-
-            if ($request == 'coupon')
-                header('Location: /admin#/coupons');
-            else
-                header('Location: /admin#/machines/'.$_POST['machine_id']);
-            exit();
         }
         catch (Exception $e) {
             echo $e->getMessage().' at line '.$e->getLine();
@@ -667,7 +607,26 @@ $app->delete('/coupons/:id', function($id) use ($app) {
 $app->get('/businesses', function() use ($app) {
     try 
     {
-        $businesses = R::findAll('businesses');
+        $uncouponed_businesses = R::findAll('businesses');
+        $businesses = array();
+        foreach ($uncouponed_businesses as $uncouponed_business)
+        {
+            $sql = 'SELECT c.id, c.name, c.expired_date, c.description '.
+                   'FROM businesses b JOIN coupons c ON c.business_id = b.id WHERE b.id = '.$uncouponed_business->id;
+            $records = R::getAll($sql);
+            $coupons = R::convertToBeans('coupons', $records);
+
+            $business = R::dispense('business');
+            $business->id          = $uncouponed_business->id;
+            $business->name        = $uncouponed_business->name;
+            $business->address     = $uncouponed_business->address;
+            $business->phone       = $uncouponed_business->phone; 
+            $business->email       = $uncouponed_business->email;
+            $business->description = $uncouponed_business->description;
+            $business->coupons     = $coupons;
+
+            array_push($businesses, $business);
+        }
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($businesses));
     } 
@@ -681,7 +640,23 @@ $app->get('/businesses', function() use ($app) {
 $app->get('/businesses/:id', function($id) use ($app) {
     try 
     {
-        $business = R::findOne('businesses', 'id=?', array($id));
+        $uncouponed_business = R::findOne('businesses', 'id=?', array($id));
+
+        $sql = 'SELECT c.id, c.name, c.expired_date, c.description '.
+                'FROM businesses b JOIN coupons c ON c.business_id = b.id WHERE b.id = '.$id;
+
+        $records  = R::getAll($sql);
+        $coupons  = R::convertToBeans('coupons', $records);
+        $business = R::dispense('business');
+
+        $business->id          = $id;
+        $business->name        = $uncouponed_business->name;
+        $business->address     = $uncouponed_business->address;
+        $business->phone       = $uncouponed_business->phone; 
+        $business->email       = $uncouponed_business->email;
+        $business->description = $uncouponed_business->description;
+        $business->coupons     = $coupons;
+
         $app->response()->header('Content-Type', 'application/json');
         echo json_encode(R::exportAll($business));
     } 
@@ -700,23 +675,27 @@ $app->post('/businesses', function() use ($app) {
         $input   = json_decode($body);
 
         $name        = $input->name;
+        $phone       = $input->phone;
+        $email       = $input->email;
         $description = $input->description;
         $address     = $input->address;
 
-        if ($name == '' || $description == '' || $address == '')
+        if ($name == '' || $address == '')
             response_json_error($app, 400, 'Bad Request');
         else
         {
-            $businesses = R::dispense('businesses');
+            $business = R::dispense('businesses');
 
-            $businesses->name        = $name;
-            $businesses->address     = $address;
-            $businesses->description = $description;
+            $business->name        = $name;
+            $business->address     = $address;
+            $business->description = $description;
+            $business->email       = $email;
+            $business->phone       = $phone;
 
-            $id = R::store($businesses);
+            $id = R::store($business);
 
             $app->response()->header('Content-Type', 'application/json');
-            echo json_encode(R::exportAll($businesses));
+            echo json_encode(R::exportAll($business));
         }
     }
     catch (Exception $e)
@@ -733,17 +712,22 @@ $app->put('/businesses/:id', function($id) use ($app) {
         $input   = json_decode($body);
 
         $name        = $input->name;
-        $address     = $input->address;
+        $phone       = $input->phone;
+        $email       = $input->email;
         $description = $input->description;
+        $address     = $input->address;
 
         if ($name == '' || $address == '')
             response_json_error($app, 400, 'Bad Request');
         else
         {
             $business = R::findOne('businesses', 'id=?', array($id));
-            $business->name = (string)$name;
-            $business->address = (string)$address;
-            $business->description = (string)$description;
+
+            $business->name        = $name;
+            $business->address     = $address;
+            $business->description = $description;
+            $business->email       = $email;
+            $business->phone       = $phone;
 
             $id = R::store($business);
 
@@ -990,6 +974,18 @@ $app->post('/banners/:id', function($id) use ($app) {
         catch (Exception $e) {
             echo $e->getMessage();
         }
+    }
+    catch (Exception $e) {
+        echo $e->getMessage();
+    }
+});
+
+$app->delete('/banners/:id', function($id) use ($app) {
+    try 
+    {
+        $banner = R::findOne('banners', 'id=?', array($id));
+        R::trash($banner);
+        $app->response()->status(204);
     }
     catch (Exception $e) {
         echo $e->getMessage();
