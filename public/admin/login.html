@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Coolpon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="public/admin/css/flat-ui.css" rel="stylesheet" />
+    <link href="public/admin/css/style.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <div class="page center">
+            <form id="login-form" method="post" action="/login" autocomplete="off">
+                <legend>Authorise yourself</legend>
+                <p class="control-group"><input type="text" name="username" class="span5" placeholder="Enter username"/></p>
+                <p class="control-group"><input type="text" name="password" class="span5" placeholder="Enter password"/></p>
+                <button type="submit" class="btn btn-warning btn-custom">
+                    <i class="icon-white icon-lock"></i>
+                    <span>Login</span>
+                 </button>
+            </form>
+        </div>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="public/admin/js/jquery.form.js"></script>
+    <script>
+    $.fn.serializeObject = function() {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+    };
+
+    $('#login-form').submit(function() { 
+        var input = $(this).serializeObject();
+        $.ajax({ 
+            url: '/login',
+            type: 'post',
+            data: {
+                username: input.username,
+                password: input.password
+            },
+            success: function(response) {
+                if (response == 1)
+                    window.location.replace('admin');
+                else 
+                    $('#login-form').find('.control-group').addClass('error');
+            }
+        });
+        return false; 
+    });
+    </script>
+</body>
+</html>

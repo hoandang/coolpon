@@ -117,3 +117,6 @@ p#machine-address input {
 #banner-list li p.center {
     margin-top: 10px;
 }
+#login-form {
+    margin-top: 150px;
+}

@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 require 'vendor/autoload.php';
 require 'redbean/rb.php';
 
@@ -20,7 +22,50 @@ $app->get('/', function() use ($app) {
 
 // GET admin page from template
 $app->get('/admin', function() use ($app) {
-    $app->render('admin/index.html');
+    if (authorise())
+        $app->render('admin/index.html');
+    else
+    {
+        header('Location: /login');
+        exit();
+    }
+});
+
+// GET LOGIN PAGE
+$app->get('/login', function() use ($app) {
+    if (!authorise())
+        $app->render('admin/login.html');
+    else
+    {
+        header('Location: /admin');
+        exit();
+    }
+});
+
+// LOGOUT
+$app->get('/logout', function() use ($app) {
+    session_destroy();
+    header('Location: /');
+    exit();
+});
+
+function authorise() 
+{
+    if (!empty($_SESSION['admin']))
+        return true;
+    else
+        return false;
+}
+
+// LOGIN
+$app->post('/login', function() use ($app) {
+    if($_POST['username'] == 'admin' && $_POST['password'] == 'admin') 
+    {
+        $_SESSION['admin'] = $_POST['username'];
+        echo 1;
+    }
+    else
+        echo 0;
 });
 
 // GET CATEGORIES
