@@ -26,7 +26,7 @@ var SearchedMachines = Backbone.Collection.extend({
         this.query = options.query;
     },
     url: function() {
-        return '/machines/search?q=' + this.query;
+        return '/machines/search_location?q=' + this.query;
     }
 });
 

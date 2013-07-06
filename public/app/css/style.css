@@ -132,5 +132,17 @@
     margin: 0 20px;
 }
 .banner img {
-    margin-left: -20px;
+    /*margin-left: -20px;*/
+}
+#banner-left, #banner-right {
+    position: absolute;
+}
+
+#banner-left {
+    top: 20px;
+    left: 0;
+}
+#banner-right {
+    top: 20px;
+    right: 10px;
 }

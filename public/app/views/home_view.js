@@ -5,21 +5,11 @@ var HomeView = Backbone.View.extend({
         var template = _.template($('#home').html(), {});
         this.$el.html(template);
 
-        //var banners = new Banners();
-        //banners.fetch({
-            //success: function(banners) {
-                //var template = _.template($('#banners').html(), {
-                    //banners: banners.models
-                //});
-                //$('body').find('#banner-left').html(template);
-            //}
-        //})
-
         // Autocomplete
         $('#homepage-form-search input').typeahead({ 
             minLength: 3,
             source: function(query, process) {
-                return $.get('/machines/search', {q: query}, function(result) {
+                return $.get('/machines/search_location', {q: query}, function(result) {
                     var resultList = result.map(function (item) {
                         return item.suburb;
                     });

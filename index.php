@@ -127,7 +127,7 @@ $app->get('/businesses/search', function() use ($app) {
 });
 // SEARCH MACHINES
 $app->get('/machines/search', function() use ($app) {
-    $q = $app->request()->get('m');
+    $q = $app->request()->get('q');
     try
     {
         $machines = R::find('machines', 'name like ?', array("%%%$q%%"));
@@ -236,7 +236,7 @@ $app->delete('/categories/:id', function($id) use ($app) {
     }
 });
 
-// GET LOCATIONS
+// SEARCH LOCATIONS
 $app->get('/locations/search', function() use ($app) {
     if (strlen($app->request()->get('q')) >= 3)
     {
@@ -270,13 +270,13 @@ $app->get('/locations/search', function() use ($app) {
     else response_json_error($app, 411, 'Ihe query is required at least 3 characters');
 });
 
-// GET MACHINE LOCATION
-$app->get('/machines/search', function() use ($app) {
+// SEARCH MACHINE LOCATION
+$app->get('/machines/search_location', function() use ($app) {
     $query = $app->request()->get('q');
     if (strlen($query) >= 3)
     {
         $uncouponed_machines = R::find('machines', 'suburb REGEXP ?', array($query));
-        $machines = array();
+        $machines = [];
         if (sizeof($uncouponed_machines) > 0)
         {
             foreach ($uncouponed_machines as $uncouponed_machine)
@@ -299,7 +299,7 @@ $app->get('/machines/search', function() use ($app) {
                 array_push($machines, $machine);
             }
             $app->response()->header('Content-Type', 'application/json');
-            echo json_encode(R::exportAll($machines));
+            echo json_encode(R::exportAll($uncouponed_machines));
         }
         else 
             response_json_error($app, 404, 'Machine Not Found');

@@ -15,7 +15,7 @@ var MachinesView = Backbone.View.extend({
             $('#custom-form-search input').typeahead({ 
                 minLength: 3,
                 source: function(query, process) {
-                    return $.get('/machines/search', {q: query}, function(result) {
+                    return $.get('/machines/search_location', {q: query}, function(result) {
                         var resultList = result.map(function (item) {
                             return item.suburb;
                         });

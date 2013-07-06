@@ -8,8 +8,7 @@
     <link href="public/app/css/style.css" rel="stylesheet" />
 </head>
 <body>
-    <div id="banner-left" class="span3 fixed">
-    </div>
+    <div id="banner-left" class="span3"></div>
     <div class="container">
         <div class="page"></div>
         <hr/>
@@ -22,13 +21,22 @@
             </ul>
         </div>
     </div>
+    <div id="banner-right" class="span3">
+        <a href="#"><img width="280px" height="100%" src="assets/no-image.jpg"/></a>
+        <br/><br/>
+        <a href="#"><img width="280px" height="100%" src="assets/no-image.jpg"/></a>
+        <br/><br/>
+        <a href="#"><img width="280px" height="100%" src="assets/no-image.jpg"/></a>
+        <br/><br/>
+    </div>
+
     <script type="text/template" id="banners">
-        <!--<% _.each(banners, function(banner) { %>-->
-            <!--<% if (banner.get('path') != 'assets/no-image.jpg') { %>-->
-            <!--<img width="280px" height="100%" src="<%=banner.get('path')%>"/>-->
-            <!--<% }; %>-->
-            <!--<br/><br/>-->
-        <!--<% }); %>-->
+        <% _.each(banners, function(banner) { %>
+            <% if (banner.get('path') != 'assets/no-image.jpg') { %>
+            <a href="#"><img width="280px" height="100%" src="<%=banner.get('path')%>"/></a>
+            <% }; %>
+            <br/><br/>
+        <% }); %>
     </script>
 
     <script type="text/template" id="home">
