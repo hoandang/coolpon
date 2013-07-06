@@ -20,7 +20,7 @@ var MachineDetailView = Backbone.View.extend({
             $('#machine-detail-form-search input').typeahead({ 
                 minLength: 3,
                 source: function(query, process) {
-                    return $.get('/machines/search', {q: query}, function(result) {
+                    return $.get('/machines/search_location', {q: query}, function(result) {
                         var resultList = result.map(function (item) {
                             return item.suburb;
                         });

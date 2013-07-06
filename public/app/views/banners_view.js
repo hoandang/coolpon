@@ -5,10 +5,15 @@ var BannersView = Backbone.View.extend({
         var banners = new Banners();
         banners.fetch({
             success: function(banners) {
-                var template = _.template($('#banners').html(), {
-                    banners: banners.models
+                var template = _.template($('#left-banners').html(), {
+                    banners: _.first(banners.models, 3)
                 });
                 that.$el.html(template);
+
+                var template = _.template($('#right-banners').html(), {
+                    banners: _.rest(banners.models, 3)
+                });
+                $('#banner-right').html(template);
             }
         })
     }

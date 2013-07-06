@@ -140,9 +140,12 @@
 
 #banner-left {
     top: 20px;
-    left: 0;
+    left: -10px;
 }
 #banner-right {
     top: 20px;
     right: 10px;
+}
+.twitter-share {
+    margin-bottom: 10px;
 }

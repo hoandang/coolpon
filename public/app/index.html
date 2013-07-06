@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:fb="http://ogp.me/ns/fb#" xmlns:wb="http://open.weibo.com/wb">
+<html xmlns:wb="http://open.weibo.com/wb">
 <head>
     <title>CoolPon</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -21,16 +21,18 @@
             </ul>
         </div>
     </div>
-    <div id="banner-right" class="span3">
-        <a href="#"><img width="280px" height="100%" src="assets/no-image.jpg"/></a>
-        <br/><br/>
-        <a href="#"><img width="280px" height="100%" src="assets/no-image.jpg"/></a>
-        <br/><br/>
-        <a href="#"><img width="280px" height="100%" src="assets/no-image.jpg"/></a>
-        <br/><br/>
-    </div>
+    <div id="banner-right" class="span3"></div>
 
-    <script type="text/template" id="banners">
+    <script type="text/template" id="left-banners">
+        <% _.each(banners, function(banner) { %>
+            <% if (banner.get('path') != 'assets/no-image.jpg') { %>
+            <a href="#"><img width="280px" height="100%" src="<%=banner.get('path')%>"/></a>
+            <% }; %>
+            <br/><br/>
+        <% }); %>
+    </script>
+
+    <script type="text/template" id="right-banners">
         <% _.each(banners, function(banner) { %>
             <% if (banner.get('path') != 'assets/no-image.jpg') { %>
             <a href="#"><img width="280px" height="100%" src="<%=banner.get('path')%>"/></a>
@@ -159,12 +161,23 @@
     <a class="btn-back" href="javascript:history.back()">&#8592; Back</a>
     <br/><br/>
     <h3><%=coupon.name%> - <span class="alert-error">Expired Date: <%=coupon.expired_date%></span></h3>
-    <div class="share-section">
-        <fb:like send="false" layout="button_count" width="450" show_faces="true"></fb:like>
-        <a href="https://twitter.com/share" class="twitter-share-button" data-via="twitterapi" data-lang="en">Tweet</a>
-        <wb:follow-button uid="3511000332" type="red_4" width="67" height="24" ></wb:follow-button>
-    </div> 
-    <hr/>
+    <br/>
+
+
+
+
+    <!-- SHARE SECTION -->
+    <iframe class="face-share" scrolling="no" frameborder="0" allowtransparency="allowTransparency" width="280" height="65" src="http://www.facebook.com/widgets/like.php?width=280&show_faces=1&layout=standard&href=http://www.website.com/product/75"></iframe>
+
+    <iframe class="twitter-share" scrolling="no" frameborder="0" allowTransparency="allowTransparency" width="100" height="65" src="public/app/twitter-share.html"></iframe>
+
+    <iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?url=http://cargocollective.com/&type=3&count=1" width="100" height="65"></iframe>
+    <!-- SHARE SECTION -->
+
+
+
+
+
     <div class="intro-section">
         <img class="pull-left" width="440px" height="266px" src="<%=coupon.image%>"/>
         <div class="business-section pull-left">
@@ -204,23 +217,17 @@
     </ul>
     <hr />
     <h3><%=category.name%></h3>
-    <ul>
-        <% _.each(category.machines, function(machine) { %>
+    <hr/>
+    <ul class="thumbnails coupons-list">
+        <% _.each(category.ownCoupons, function(coupon) { %>
         <li>
-            <h5 class="text-warning"><%=machine.name%></h5>
-            <ul class="thumbnails coupons-list">
-                <% _.each(machine.coupons, function(coupon) { %>
-                <li>
-                    <a class="thumbnail" href="#/machines/<%= machine.id %>/coupons/<%=coupon.id%>">
-                        <img data-src="holder.js/260x180" src="<%= coupon.image %>" />
-                    </a>
-                    <h5>
-                        <span class="coupon-name"><%= coupon.name %></span>
-                        - <span class="alert-error">Expired: <%=coupon.expired_date%></span>
-                    </h5>
-                </li>
-                <% }); %>
-            </ul>
+            <a class="thumbnail" href="#/machines/<%= coupon.machine_id %>/coupons/<%=coupon.id%>">
+                <img data-src="holder.js/260x180" src="<%= coupon.image %>" />
+            </a>
+            <h5>
+                <span class="coupon-name"><%= coupon.name %></span>
+                - <span class="alert-error">Expired: <%=coupon.expired_date%></span>
+            </h5>
         </li>
         <% }); %>
     </ul>
