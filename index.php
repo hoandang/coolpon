@@ -276,7 +276,7 @@ $app->get('/machines/search_location', function() use ($app) {
     if (strlen($query) >= 3)
     {
         $uncouponed_machines = R::find('machines', 'suburb REGEXP ?', array($query));
-        $machines = [];
+        $machines = array();
         if (sizeof($uncouponed_machines) > 0)
         {
             foreach ($uncouponed_machines as $uncouponed_machine)

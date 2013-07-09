@@ -2,18 +2,17 @@
 <html xmlns:wb="http://open.weibo.com/wb">
 <head>
     <title>CoolPon</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, width=device-width"> 
     <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="public/app/css/flat-ui.css" rel="stylesheet" />
     <link href="public/app/css/style.css" rel="stylesheet" />
 </head>
 <body>
-    <div id="banner-left" class="span3"></div>
+    <!--<div id="banner-left" class="span3"></div>-->
     <div class="container">
         <div class="page"></div>
-        <hr/>
         <div class="clearfix"></div>
-        <div class="footer pull-right">
+        <div class="footer center">
             <ul>
                 <li><strong><a href="#">Contact Us</a></strong></li>
                 <li><strong><a href="#">About Us</a></strong></li>
@@ -21,7 +20,7 @@
             </ul>
         </div>
     </div>
-    <div id="banner-right" class="span3"></div>
+    <!--<div id="banner-right" class="span3"></div>-->
 
     <script type="text/template" id="left-banners">
         <% _.each(banners, function(banner) { %>
@@ -70,7 +69,6 @@
             </form>
         </div>
         <div class="clearfix"></div>
-        <hr/>
         <ul class="span12" id="navigator">
             <% _.each(categories, function(category) { %>
                 <li><a href="#/categories/<%=category.id%>"><%=category.get('name')%></a></li>
@@ -107,7 +105,6 @@
             </form>
         </div>
         <div class="clearfix"></div>
-        <hr />
         <ul class="span12" id="navigator">
             <% _.each(categories, function(category) { %>
                 <li><a href="#/categories/<%=category.id%>"><%=category.get('name')%></a></li>
@@ -153,13 +150,12 @@
         </form>
     </div>
     <div class="clearfix"></div>
-    <hr />
     <ul class="span12" id="navigator">
         <% _.each(categories, function(category) { %>
             <li><a href="#/categories/<%=category.id%>"><%=category.get('name')%></a></li>
         <% }); %>
     </ul>
-    <hr />
+    <div class="clearfix"></div>
     <a class="btn-back" href="javascript:history.back()">&#8592; Back</a>
     <br/><br/>
     <h3><%=coupon.name%> - <span class="alert-error">Expired Date: <%=coupon.expired_date%></span></h3>
@@ -194,7 +190,6 @@
         </div>
     </div>
     <div class="clearfix"></div>
-    <hr/>
     <div class="coupon-content"><%=coupon.description%></div>
     </script>
 
@@ -211,15 +206,13 @@
         </form>
     </div>
     <div class="clearfix"></div>
-    <hr />
     <ul class="span12" id="navigator">
         <% _.each(menu_categories, function(category) { %>
             <li><a href="#/categories/<%=category.id%>"><%=category.get('name')%></a></li>
         <% }); %>
     </ul>
-    <hr />
+    <div class="clearfix"></div>
     <h3><%=category.name%></h3>
-    <hr/>
     <ul class="thumbnails coupons-list">
         <% _.each(category.ownCoupons, function(coupon) { %>
         <li>
